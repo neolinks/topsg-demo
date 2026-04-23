@@ -1,0 +1,3868 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>СметаПро — демо</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-soft: #f4f6fa;
+    --bg-panel: #fafbfd;
+    --ink: #0c1a35;
+    --ink-soft: #2d3b5c;
+    --ink-mute: #8893ab;
+    --line: #e4e8f0;
+    --line-strong: #cdd4e0;
+    /* primary navy — из лого */
+    --primary: #1d3b7a;
+    --primary-deep: #14285a;
+    --primary-ink: #ffffff;
+    --primary-wash: #e8edf7;
+    /* accent red — из лого */
+    --accent: #d8232a;
+    --accent-deep: #a8181e;
+    --accent-wash: #fdecec;
+    /* семантические цвета (сохраняю старые имена, чтобы не ломать разметку) */
+    --green: var(--primary);
+    --green-deep: var(--primary-deep);
+    --green-ink: var(--primary-ink);
+    --green-wash: var(--primary-wash);
+    --amber: #e8960f;
+    --rose: var(--accent);
+    --shadow-sm: 0 1px 2px rgba(12, 26, 53, .05);
+    --shadow-md: 0 6px 24px -8px rgba(12, 26, 53, .12);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: 'Inter Tight', system-ui, sans-serif; font-feature-settings: "ss01", "cv11"; -webkit-font-smoothing: antialiased; }
+  body { min-height: 100vh; }
+
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; border: none; background: none; cursor: pointer; color: inherit; }
+
+  /* ——— LAYOUT ——— */
+  .app { display: grid; grid-template-columns: 232px 1fr; min-height: 100vh; }
+
+  /* ——— SIDEBAR ——— */
+  .side {
+    background: var(--bg-soft);
+    border-right: 1px solid var(--line);
+    padding: 24px 20px;
+    position: sticky; top: 0; height: 100vh;
+    display: flex; flex-direction: column;
+  }
+
+  /* ——— Логотип TOP Service Group ——— */
+  .brand {
+    display: flex; align-items: center;
+    margin-bottom: 32px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--line);
+  }
+  .brand-text { line-height: 1; }
+  .brand-name {
+    font-family: 'Inter Tight', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: 0.01em;
+    color: var(--primary-deep);
+    line-height: 0.95;
+  }
+  .brand-sub {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.24em;
+    color: var(--primary);
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-top: 5px;
+  }
+
+  .nav-group { margin-bottom: 28px; }
+  .nav-label {
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-mute); padding: 0 10px; margin-bottom: 8px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: 8px;
+    font-size: 14px; color: var(--ink-soft);
+    cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .nav-item:hover { background: rgba(29, 59, 122, 0.07); color: var(--ink); }
+  .nav-item.active {
+    background: var(--ink);
+    color: #fff;
+    position: relative;
+  }
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: -20px; top: 8px; bottom: 8px;
+    width: 3px;
+    background: var(--accent);
+    border-radius: 0 2px 2px 0;
+  }
+  .nav-item .icon { width: 16px; height: 16px; stroke-width: 1.8; flex-shrink: 0; }
+  .nav-item .badge {
+    margin-left: auto;
+    font-size: 11px; background: var(--green); color: var(--green-ink);
+    padding: 1px 7px; border-radius: 10px; font-weight: 600;
+  }
+
+  .side-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--line); }
+  .user {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 8px;
+  }
+  .avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--green), var(--green-deep));
+    color: white; display: grid; place-items: center;
+    font-weight: 600; font-size: 12px;
+  }
+  .user-name { font-size: 13px; font-weight: 500; line-height: 1.2; }
+  .user-role { font-size: 11px; color: var(--ink-mute); }
+
+  /* ——— MAIN ——— */
+  .main { overflow-x: hidden; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 36px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(255,255,255,.8);
+    backdrop-filter: blur(8px);
+    position: sticky; top: 0; z-index: 5;
+  }
+  .breadcrumbs { font-size: 13px; color: var(--ink-mute); display: flex; align-items: center; gap: 8px; }
+  .breadcrumbs .crumb-here { color: var(--ink); font-weight: 500; }
+  .breadcrumbs svg { width: 12px; height: 12px; }
+
+  .top-actions { display: flex; align-items: center; gap: 10px; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    font-size: 13px; font-weight: 500;
+    background: white;
+    transition: all .15s ease;
+  }
+  .btn:hover { border-color: var(--ink); }
+  .btn-primary {
+    background: var(--green);
+    border-color: var(--green);
+    color: var(--green-ink);
+    font-weight: 600;
+  }
+  .btn-primary:hover { background: var(--green-deep); border-color: var(--green-deep); color: white; }
+  .btn-ghost { border-color: transparent; background: transparent; color: var(--ink-soft); }
+  .btn-ghost:hover { background: var(--bg-soft); color: var(--ink); }
+
+  /* ——— CONTENT ——— */
+  .content { padding: 32px 36px 80px; max-width: 1400px; }
+
+  .page-head {
+    display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end;
+    margin-bottom: 32px;
+  }
+  .page-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 38px;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin: 0 0 6px;
+  }
+  .page-title em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--green-deep);
+  }
+  .page-meta { display: flex; gap: 20px; font-size: 13px; color: var(--ink-mute); }
+  .page-meta .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); margin-right: 6px; vertical-align: middle; box-shadow: 0 0 0 3px var(--green-wash); }
+
+  .status-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    background: var(--primary-wash);
+    border: 1px solid rgba(29, 59, 122, 0.22);
+    color: var(--primary-deep);
+    border-radius: 100px;
+    font-size: 12px; font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+
+  /* ——— STEPPER ——— */
+  .stepper {
+    display: flex; align-items: stretch; gap: 0;
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 6px;
+    margin-bottom: 28px;
+    overflow-x: auto;
+  }
+  .step {
+    flex: 1; min-width: 140px;
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    position: relative;
+    transition: background .15s;
+  }
+  .step:hover { background: rgba(29, 59, 122, 0.06); }
+  .step.active { background: var(--ink); color: white; }
+  .step.active .step-label { color: white; }
+  .step.active .step-label small { color: rgba(255,255,255,0.75); opacity: 1; }
+  .step.done { color: var(--ink-soft); }
+  .step.done .step-num {
+    background: var(--green); color: var(--green-ink);
+    border-color: var(--green);
+  }
+  .step.active .step-num {
+    background: var(--green);
+    color: var(--green-ink);
+    border-color: var(--green);
+  }
+  .step-num {
+    width: 24px; height: 24px; border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    display: grid; place-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 600;
+    flex-shrink: 0;
+  }
+  .step-label { font-size: 13px; font-weight: 500; line-height: 1.2; }
+  .step-label small { display: block; font-size: 11px; font-weight: 400; opacity: .65; margin-top: 1px; }
+
+  /* ——— GRID ——— */
+  .grid { display: grid; grid-template-columns: 1fr 380px; gap: 24px; }
+  @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .card-head {
+    padding: 18px 22px 14px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+  }
+  .card-head h3 {
+    margin: 0;
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 19px;
+    letter-spacing: -0.01em;
+  }
+  .card-head .hint { font-size: 12px; color: var(--ink-mute); }
+  .card-body { padding: 20px 22px; }
+
+  /* ——— CLIENT INFO ——— */
+  .client-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border-bottom: 1px solid var(--line); }
+  .client-cell {
+    padding: 18px 22px;
+    border-right: 1px solid var(--line);
+  }
+  .client-cell:last-child { border-right: none; }
+  .client-cell .k { font-size: 11px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .client-cell .v { font-size: 15px; font-weight: 500; letter-spacing: -0.01em; }
+  .client-cell .v small { color: var(--ink-mute); font-weight: 400; font-size: 12px; margin-left: 4px; }
+
+  /* ——— SECTIONS ——— */
+  .section-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--line);
+  }
+  .section-row:last-child { border-bottom: none; }
+  .section-row:hover { background: var(--bg-panel); }
+  .section-row.enabled { background: linear-gradient(to right, rgba(29, 59, 122, 0.05), transparent 60%); }
+
+  .sec-left { display: flex; align-items: center; gap: 14px; }
+  .sec-icon {
+    width: 38px; height: 38px;
+    display: grid; place-items: center;
+    background: var(--bg-soft);
+    border-radius: 10px;
+    border: 1px solid var(--line);
+  }
+  .section-row.enabled .sec-icon { background: var(--green-wash); border-color: rgba(29, 59, 122, 0.22); }
+  .sec-icon svg { width: 18px; height: 18px; color: var(--ink-soft); }
+  .section-row.enabled .sec-icon svg { color: var(--green-deep); }
+
+  .sec-title { font-size: 14px; font-weight: 500; }
+  .sec-meta { font-size: 12px; color: var(--ink-mute); margin-top: 2px; }
+
+  .sec-input {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .input {
+    padding: 7px 10px;
+    border: 1px solid var(--line-strong);
+    border-radius: 7px;
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    background: white;
+    width: 110px;
+    text-align: right;
+    transition: border-color .15s;
+  }
+  .input:focus { outline: none; border-color: var(--green-deep); box-shadow: 0 0 0 3px var(--green-wash); }
+  .unit { font-size: 12px; color: var(--ink-mute); min-width: 22px; }
+
+  /* Toggle */
+  .toggle {
+    position: relative;
+    width: 36px; height: 20px;
+    background: var(--line-strong);
+    border-radius: 100px;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 16px; height: 16px;
+    background: white;
+    border-radius: 50%;
+    transition: transform .2s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  }
+  .toggle.on { background: var(--green); }
+  .toggle.on::after { transform: translateX(16px); }
+
+  /* ——— STAFF TABLE ——— */
+  .staff-table { width: 100%; font-size: 13px; }
+  .staff-head {
+    display: grid;
+    grid-template-columns: 1.8fr 0.6fr 2.2fr 1fr 0.8fr;
+    gap: 14px;
+    padding: 10px 22px;
+    border-bottom: 1px solid var(--line);
+    font-size: 11px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.06em;
+    background: var(--bg-panel);
+  }
+  .staff-row {
+    display: grid;
+    grid-template-columns: 1.8fr 0.6fr 2.2fr 1fr 0.8fr;
+    gap: 14px;
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--line);
+    align-items: center;
+  }
+  .staff-row:last-child { border-bottom: none; }
+
+  .pos-name { font-weight: 500; font-size: 14px; }
+  .pos-meta { font-size: 11px; color: var(--ink-mute); margin-top: 2px; }
+  .pos-area { font-size: 11px; color: var(--ink-mute); margin-top: 3px; display: flex; align-items: center; gap: 4px; }
+  .pos-area .auto-tag {
+    display: inline-block; padding: 1px 6px; border-radius: 4px;
+    background: var(--green-wash); color: var(--green-ink);
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    font-weight: 600;
+  }
+
+  /* —— SALARY WIDGET — main feature —— */
+  .salary-widget {
+    position: relative;
+  }
+  .salary-track {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px;
+    background: var(--line);
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    padding: 2px;
+    overflow: hidden;
+  }
+  .salary-btn {
+    padding: 9px 6px;
+    background: white;
+    border-radius: 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .salary-btn:hover { background: var(--bg-soft); }
+  .salary-btn.selected {
+    background: var(--ink); color: white;
+  }
+  .salary-btn.selected .salary-label { color: var(--green); }
+  .salary-btn .salary-label {
+    display: block;
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--ink-mute);
+    margin-bottom: 2px; font-weight: 600;
+  }
+  .salary-btn .salary-val {
+    font-size: 12px; font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: -0.02em;
+  }
+  .salary-source {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 10px; color: var(--ink-mute);
+    margin-top: 5px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .source-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 1px 6px; border-radius: 4px;
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+  .source-pill.hh { color: #b8140e; border-color: rgba(184, 20, 14, 0.2); background: rgba(184, 20, 14, 0.05); }
+  .source-pill.manual { color: var(--ink-soft); }
+  .source-pill.low-sample { color: var(--amber); border-color: rgba(244, 167, 26, 0.3); background: rgba(244, 167, 26, 0.08); }
+
+  .headcount-stepper {
+    display: inline-flex; align-items: center;
+    border: 1px solid var(--line-strong);
+    border-radius: 7px;
+    overflow: hidden;
+  }
+  .hc-btn {
+    width: 26px; height: 30px;
+    display: grid; place-items: center;
+    font-size: 14px; color: var(--ink-soft);
+    background: white;
+    transition: background .15s;
+  }
+  .hc-btn:hover { background: var(--bg-soft); }
+  .hc-val {
+    padding: 0 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 13px;
+    border-left: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+    height: 30px; display: grid; place-items: center;
+    min-width: 40px;
+  }
+
+  .fot-cell { text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 13px; letter-spacing: -0.02em; }
+  .fot-cell small { display: block; font-size: 10px; color: var(--ink-mute); font-weight: 400; margin-top: 2px; }
+
+  /* ——— SIDEBAR FINANCIAL MODEL ——— */
+  .finmodel {
+    position: sticky; top: 88px;
+    background: linear-gradient(180deg, var(--primary-deep), #0b1e44);
+    color: white;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px -16px rgba(12, 26, 53, 0.35);
+  }
+  .fin-head {
+    padding: 22px 24px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    position: relative;
+  }
+  .fin-head::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 88px; height: 88px;
+    background:
+      radial-gradient(circle at top right,
+      rgba(216, 35, 42, 0.22),
+      transparent 70%);
+    pointer-events: none;
+  }
+  .fin-head .label { font-size: 11px; color: rgba(255,255,255,0.55); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; position: relative; }
+  .fin-margin {
+    display: flex; align-items: baseline; gap: 8px;
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 48px;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    color: white;
+    position: relative;
+  }
+  .fin-margin-pct { font-size: 22px; color: rgba(255,255,255,0.65); font-weight: 400; }
+  .fin-margin-note {
+    font-size: 11px; color: rgba(255,255,255,0.55);
+    margin-top: 10px;
+    display: flex; align-items: center; gap: 6px;
+    position: relative;
+  }
+  .fin-margin-note::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px rgba(216, 35, 42, 0.22);
+  }
+
+  .fin-table {
+    padding: 8px 0;
+  }
+  .fin-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 9px 24px;
+    font-size: 13px;
+  }
+  .fin-row.total {
+    background: rgba(255,255,255,0.04);
+    margin-top: 6px; padding-top: 14px; padding-bottom: 14px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .fin-row .k { color: rgba(255,255,255,0.6); }
+  .fin-row .v { font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+  .fin-row.total .k, .fin-row.total .v { color: white; font-weight: 600; }
+
+  .fin-section {
+    padding: 14px 24px 4px;
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+  }
+
+  .fin-actions {
+    padding: 16px 24px 24px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .fin-actions .btn {
+    justify-content: center;
+  }
+  .btn-green-on-dark {
+    background: var(--accent); color: white; border-color: var(--accent); font-weight: 600;
+  }
+  .btn-green-on-dark:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
+  .btn-outline-light {
+    background: transparent; border-color: rgba(255,255,255,0.2); color: white;
+  }
+  .btn-outline-light:hover { border-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.05); }
+
+  /* ——— APPROVAL BADGE ——— */
+  .approval-note {
+    background: var(--green-wash);
+    border: 1px solid rgba(29, 59, 122, 0.22);
+    padding: 12px 16px;
+    border-radius: 10px;
+    display: flex; gap: 10px;
+    font-size: 12.5px; color: var(--green-ink);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  .approval-note svg { flex-shrink: 0; color: var(--green-deep); }
+  .approval-note strong { font-weight: 600; }
+
+  /* ——— INVENTORY & CHEMICALS ——— */
+  .inv-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  .inv-col {
+    padding: 0;
+    border-right: 1px solid var(--line);
+  }
+  .inv-col:last-child { border-right: none; }
+  .inv-col-head {
+    padding: 14px 22px 10px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--line);
+  }
+  .inv-col-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--ink-soft);
+    font-weight: 600;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .inv-col-title svg {
+    width: 14px; height: 14px;
+    color: var(--primary);
+  }
+  .inv-col-sum {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--primary-deep);
+    font-weight: 600;
+  }
+  .inv-row {
+    display: grid;
+    grid-template-columns: 1.6fr 50px 80px 1fr;
+    gap: 10px;
+    padding: 11px 22px;
+    border-bottom: 1px solid var(--line);
+    align-items: center;
+    font-size: 12.5px;
+  }
+  .inv-row:last-child { border-bottom: none; }
+  .inv-row:hover { background: rgba(29, 59, 122, 0.03); }
+  .inv-name { font-weight: 500; color: var(--ink); }
+  .inv-name small {
+    display: block;
+    font-size: 10.5px;
+    color: var(--ink-mute);
+    font-weight: 400;
+    margin-top: 1px;
+  }
+  .inv-qty, .inv-price, .inv-cost {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+  .inv-qty { color: var(--ink-soft); text-align: center; }
+  .inv-price { color: var(--ink-mute); text-align: right; }
+  .inv-cost { text-align: right; font-weight: 600; color: var(--ink); }
+  .inv-cost small {
+    display: block;
+    font-size: 10px;
+    color: var(--ink-mute);
+    font-weight: 400;
+    margin-top: 1px;
+  }
+
+  .inv-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    background: var(--primary-wash);
+    border-top: 1px solid rgba(29, 59, 122, 0.15);
+  }
+  .inv-sum-cell {
+    padding: 14px 22px;
+    border-right: 1px solid rgba(29, 59, 122, 0.12);
+  }
+  .inv-sum-cell:last-child { border-right: none; }
+  .inv-sum-cell .k {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--primary);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .inv-sum-cell .v {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary-deep);
+    letter-spacing: -0.01em;
+  }
+  .inv-sum-cell .v small {
+    font-size: 11px;
+    color: var(--primary);
+    margin-left: 4px;
+    font-weight: 500;
+  }
+
+  .region-select {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: 100px;
+    background: white;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .region-select:hover { border-color: var(--ink); }
+
+  /* ——— Scenario switch (demo only) ——— */
+  .scenario-switch {
+    display: inline-flex;
+    padding: 4px;
+    background: var(--ink);
+    border-radius: 100px;
+    gap: 2px;
+    box-shadow: 0 4px 16px -6px rgba(15, 40, 20, 0.25);
+  }
+  .scenario-btn {
+    padding: 7px 16px 7px 12px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.55);
+    border-radius: 100px;
+    display: inline-flex; align-items: center; gap: 7px;
+    transition: all .2s ease;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  .scenario-btn:hover { color: rgba(255,255,255,0.85); }
+  .scenario-btn.active {
+    background: var(--green);
+    color: var(--green-ink);
+    font-weight: 600;
+  }
+  .scenario-btn .sc-ico {
+    width: 14px; height: 14px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .scenario-label-demo {
+    font-size: 10px;
+    color: var(--ink-mute);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-right: 10px;
+    font-weight: 600;
+  }
+  [data-scenario-view] { display: none; }
+  [data-scenario-view].show { display: block; }
+  .swap-fade { animation: swapFade .28s ease; }
+  @keyframes swapFade {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ——— Views: list vs detail ——— */
+  [data-view] { display: none; }
+  [data-view].show { display: block; }
+
+  /* ——— Step content switching ——— */
+  [data-step-content] { display: none; }
+  [data-step-content].active { display: block; animation: swapFade .25s ease; }
+
+  /* ——— Step 5: Full financial breakdown ——— */
+  .fin-full {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  .fin-full-col {
+    padding: 0;
+  }
+  .fin-full-col + .fin-full-col { border-left: 1px solid var(--line); }
+  .fin-full-head {
+    padding: 14px 22px 10px;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .fin-full-title {
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--ink-soft); font-weight: 600;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .fin-full-title svg { width: 14px; height: 14px; color: var(--primary); }
+  .fin-full-sum {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 600;
+    color: var(--primary-deep);
+  }
+  .fin-full-row {
+    display: grid;
+    grid-template-columns: 1.6fr 0.9fr 0.9fr;
+    gap: 14px;
+    padding: 12px 22px;
+    align-items: baseline;
+    border-bottom: 1px solid var(--line);
+    font-size: 13px;
+  }
+  .fin-full-row:last-child { border-bottom: none; }
+  .fin-full-row:hover { background: rgba(29, 59, 122, 0.03); }
+  .fin-full-row.total {
+    background: var(--primary-wash);
+    font-weight: 600;
+    border-top: 1px solid rgba(29, 59, 122, 0.2);
+  }
+  .fin-full-row.total .fin-k { color: var(--primary-deep); }
+  .fin-full-row.total .fin-v { color: var(--primary-deep); font-size: 14px; }
+  .fin-k { color: var(--ink-soft); }
+  .fin-k small { display: block; font-size: 11px; color: var(--ink-mute); margin-top: 1px; font-weight: 400; }
+  .fin-formula {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-mute);
+    text-align: right;
+  }
+  .fin-v {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 13px;
+    text-align: right;
+    letter-spacing: -0.01em;
+  }
+
+  .fin-hero {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    background: linear-gradient(135deg, var(--primary-deep), #0b1e44);
+    color: white;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .fin-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 220px; height: 160px;
+    background: radial-gradient(circle at top right, rgba(216, 35, 42, 0.25), transparent 70%);
+    pointer-events: none;
+  }
+  .fin-hero-cell {
+    padding: 22px 24px;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    position: relative;
+  }
+  .fin-hero-cell:last-child { border-right: none; }
+  .fin-hero-cell .hk {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .fin-hero-cell .hv {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    line-height: 1;
+  }
+  .fin-hero-cell .hv small {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 14px;
+    color: rgba(255,255,255,0.6);
+    font-weight: 400;
+    margin-left: 4px;
+  }
+  .fin-hero-cell .hd {
+    font-size: 11px;
+    margin-top: 8px;
+    color: rgba(255,255,255,0.55);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .fin-hero-cell.accent .hv { color: white; }
+  .fin-hero-cell.accent .hv::after {
+    content: '';
+    display: block;
+    width: 32px; height: 2px;
+    background: var(--accent);
+    margin-top: 8px;
+  }
+
+  /* ——— Step 6: Approval ——— */
+  .approval-timeline {
+    display: flex;
+    gap: 0;
+    padding: 0 22px;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--line);
+  }
+  .approval-stage {
+    flex: 1;
+    padding: 20px 4px 18px;
+    position: relative;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .approval-stage::after {
+    content: '';
+    position: absolute;
+    left: 30px; right: -30px; top: 38px;
+    height: 2px;
+    background: var(--line);
+    z-index: 0;
+  }
+  .approval-stage:last-child::after { display: none; }
+  .approval-stage.done::after { background: var(--primary); }
+  .stage-dot {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid var(--line-strong);
+    position: relative; z-index: 1;
+    display: grid; place-items: center;
+    margin-bottom: 10px;
+    font-size: 11px;
+    color: var(--ink-mute);
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .approval-stage.done .stage-dot {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+  }
+  .approval-stage.active .stage-dot {
+    background: white;
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .approval-stage.active .stage-dot::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    opacity: 0.25;
+    animation: ripple 1.5s infinite;
+  }
+  @keyframes ripple {
+    0% { transform: scale(1); opacity: 0.5; }
+    100% { transform: scale(1.5); opacity: 0; }
+  }
+  .stage-title { font-size: 12.5px; font-weight: 500; color: var(--ink); }
+  .stage-meta { font-size: 11px; color: var(--ink-mute); line-height: 1.4; }
+
+  .approval-actions {
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .app-action-card {
+    padding: 16px 18px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    text-align: left;
+    cursor: pointer;
+    transition: all .15s;
+    background: white;
+  }
+  .app-action-card:hover { border-color: var(--primary); box-shadow: var(--shadow-md); }
+  .app-action-card.primary {
+    background: var(--primary-deep);
+    border-color: var(--primary-deep);
+    color: white;
+  }
+  .app-action-card.primary:hover { background: var(--primary); }
+  .app-action-card.primary .ac-title { color: white; }
+  .app-action-card.primary .ac-meta { color: rgba(255,255,255,0.7); }
+  .ac-icon {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: var(--primary-wash);
+    display: grid; place-items: center;
+    margin-bottom: 10px;
+  }
+  .ac-icon svg { width: 14px; height: 14px; color: var(--primary-deep); }
+  .app-action-card.primary .ac-icon { background: rgba(255,255,255,0.15); }
+  .app-action-card.primary .ac-icon svg { color: white; }
+  .app-action-card.danger .ac-icon { background: var(--accent-wash); }
+  .app-action-card.danger .ac-icon svg { color: var(--accent-deep); }
+  .ac-title { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .ac-meta { font-size: 11.5px; color: var(--ink-mute); line-height: 1.4; }
+
+  .approval-comment {
+    padding: 22px 24px;
+  }
+  .comment-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-mute);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .comment-input {
+    width: 100%;
+    min-height: 80px;
+    padding: 12px 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 13px;
+    resize: vertical;
+    transition: border-color .15s;
+    background: var(--bg-panel);
+  }
+  .comment-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: white;
+  }
+
+  .approval-checks {
+    padding: 18px 24px;
+    background: var(--primary-wash);
+    border-top: 1px solid rgba(29, 59, 122, 0.15);
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  }
+  .app-check {
+    display: flex; gap: 10px; align-items: flex-start;
+    font-size: 12px;
+  }
+  .app-check .check-icon {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--primary);
+    display: grid; place-items: center;
+    flex-shrink: 0;
+  }
+  .app-check.warn .check-icon { background: var(--amber); }
+  .app-check .check-icon svg { width: 10px; height: 10px; color: white; }
+  .app-check strong { display: block; color: var(--primary-deep); font-weight: 600; margin-bottom: 2px; }
+  .app-check span { color: var(--ink-soft); line-height: 1.4; }
+
+  /* ——— ESTIMATE LIST ——— */
+  .list-head {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    gap: 24px; margin-bottom: 24px;
+  }
+  .list-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .stat-cell {
+    padding: 20px 24px;
+    border-right: 1px solid var(--line);
+    position: relative;
+  }
+  .stat-cell:last-child { border-right: none; }
+  .stat-cell .k {
+    font-size: 11px; color: var(--ink-mute);
+    text-transform: uppercase; letter-spacing: 0.07em;
+    margin-bottom: 6px;
+  }
+  .stat-cell .v {
+    font-family: 'Fraunces', serif;
+    font-size: 28px; font-weight: 500;
+    letter-spacing: -0.02em; line-height: 1;
+  }
+  .stat-cell .v em {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 14px;
+    color: var(--ink-mute);
+    font-style: normal;
+    font-weight: 400;
+    margin-left: 4px;
+  }
+  .stat-cell .delta {
+    font-size: 11px;
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .delta.up { color: var(--green-deep); }
+  .delta.down { color: var(--rose); }
+  .delta.neutral { color: var(--ink-mute); }
+
+  /* Filters */
+  .filter-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 4px 14px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 16px;
+  }
+  .chip {
+    padding: 6px 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: 100px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all .15s;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: white;
+  }
+  .chip:hover { border-color: var(--ink); }
+  .chip.active {
+    background: var(--ink);
+    color: white;
+    border-color: var(--ink);
+  }
+  .chip .count {
+    padding: 0 6px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .chip:not(.active) .count {
+    background: var(--bg-soft);
+    color: var(--ink-mute);
+  }
+  .search-input {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    background: white;
+    width: 260px;
+  }
+  .search-input input {
+    border: none; outline: none;
+    flex: 1;
+    font-size: 13px;
+    font-family: inherit;
+    background: transparent;
+    color: var(--ink);
+  }
+  .search-input svg { color: var(--ink-mute); }
+
+  /* List table */
+  .est-list {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .est-head-row, .est-row {
+    display: grid;
+    grid-template-columns: 140px 1.5fr 1.2fr 110px 0.8fr 150px 130px 36px;
+    gap: 16px;
+    padding: 14px 22px;
+    align-items: center;
+  }
+  .est-head-row {
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--line);
+    font-size: 11px;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+  }
+  .est-row {
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    transition: background .12s;
+    font-size: 13.5px;
+    position: relative;
+  }
+  .est-row:last-child { border-bottom: none; }
+  .est-row:hover {
+    background: linear-gradient(to right, var(--green-wash), transparent 80%);
+  }
+  .est-row:hover .est-arrow { transform: translateX(2px); color: var(--green-deep); }
+  .est-arrow {
+    color: var(--ink-mute);
+    transition: all .2s;
+  }
+
+  .est-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+  .est-client {
+    font-weight: 500;
+  }
+  .est-client small {
+    display: block;
+    font-size: 11px;
+    color: var(--ink-mute);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .est-obj {
+    font-size: 13px;
+  }
+  .est-obj .type-chip {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--bg-soft);
+    color: var(--ink-soft);
+    margin-right: 6px;
+    letter-spacing: 0.03em;
+    vertical-align: middle;
+    text-transform: uppercase;
+  }
+  .est-obj small {
+    display: block;
+    font-size: 11px;
+    color: var(--ink-mute);
+    margin-top: 2px;
+  }
+
+  .est-region {
+    display: inline-flex;
+    align-items: center; gap: 5px;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .est-region::before {
+    content: ''; width: 5px; height: 5px;
+    border-radius: 50%; background: var(--green);
+    box-shadow: 0 0 0 2px var(--green-wash);
+  }
+
+  .est-amount {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    text-align: right;
+  }
+  .est-margin {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .margin-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--bg-soft);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+  .margin-bar::after {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    background: linear-gradient(90deg, var(--primary-deep), #3a67cc);
+    border-radius: 2px;
+    width: var(--w, 50%);
+  }
+  .margin-bar.warn::after { background: linear-gradient(90deg, var(--amber), #f4b73d); }
+  .margin-bar.bad::after { background: linear-gradient(90deg, var(--accent-deep), var(--accent)); }
+
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 9px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 100px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .status-pill::before {
+    content: ''; width: 5px; height: 5px; border-radius: 50%;
+  }
+  .status-draft { background: var(--bg-soft); color: var(--ink-soft); }
+  .status-draft::before { background: var(--ink-mute); }
+  .status-review { background: #fff4e0; color: #8a5200; border: 1px solid #f4cc88; }
+  .status-review::before { background: var(--amber); }
+  .status-approved { background: var(--green-wash); color: var(--green-ink); border: 1px solid rgba(29, 59, 122, 0.3); }
+  .status-approved::before { background: var(--green-deep); }
+  .status-sent { background: #e6f0ff; color: #1a4a95; border: 1px solid #b3cdf3; }
+  .status-sent::before { background: #2b6de8; }
+  .status-rework { background: #fde6e6; color: #8a2020; border: 1px solid #f3b3b3; }
+  .status-rework::before { background: var(--rose); }
+
+  .est-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--ink-mute);
+  }
+  .est-date strong {
+    display: block;
+    color: var(--ink-soft);
+    font-weight: 500;
+    margin-bottom: 1px;
+  }
+
+  /* Back link in detail */
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; color: var(--ink-soft);
+    padding: 6px 10px 6px 8px;
+    border-radius: 7px;
+    margin-left: -10px;
+    transition: background .15s;
+    cursor: pointer;
+  }
+  .back-link:hover { background: var(--bg-soft); color: var(--ink); }
+  .region-flag {
+    width: 18px; height: 12px;
+    background: linear-gradient(to bottom, #00afca 50%, #00afca 50%);
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+  }
+  .region-flag::after {
+    content: '✦'; position: absolute; top: -2px; left: 5px; color: #ffd600; font-size: 9px;
+  }
+
+  /* Keep horizontal cleanliness */
+  ::-webkit-scrollbar { height: 6px; width: 6px; }
+  ::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 3px; }
+
+  /* Low sample warning inline */
+  .warn-note {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 10.5px;
+    color: var(--amber);
+    margin-top: 4px;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ═════════════ SIDEBAR ═════════════ -->
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-text">
+        <div class="brand-name">TOP</div>
+        <div class="brand-sub">Service Group</div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Работа</div>
+      <div class="nav-item">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12l2-2 4 4 8-8 4 4"/></svg>
+        Дашборд
+      </div>
+      <div class="nav-item active">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+        Сметы
+        <span class="badge">12</span>
+      </div>
+      <div class="nav-item">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+        На согласовании
+        <span class="badge" style="background:var(--amber); color:#4a2d00;">3</span>
+      </div>
+      <div class="nav-item">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>
+        Клиенты и объекты
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Данные</div>
+      <div class="nav-item">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2l10 6-10 6L2 8l10-6z"/><path d="M2 16l10 6 10-6M2 12l10 6 10-6"/></svg>
+        Справочники
+      </div>
+      <div class="nav-item">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M2.5 12h19M12 2.5c3 3.5 4.5 6.5 4.5 9.5s-1.5 6-4.5 9.5c-3-3.5-4.5-6.5-4.5-9.5s1.5-6 4.5-9.5z"/></svg>
+        Регионы РК
+      </div>
+      <div class="nav-item">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8l-9-5-9 5v8l9 5 9-5z"/><path d="M3.3 7.7L12 12.5l8.7-4.8M12 22V12.5"/></svg>
+        Внешние сервисы
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Аналитика</div>
+      <div class="nav-item">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 6-6"/></svg>
+        Маржа портфеля
+      </div>
+    </div>
+
+    <div class="side-footer">
+      <div class="user">
+        <div class="avatar">АЖ</div>
+        <div>
+          <div class="user-name">Айгуль Жумабекова</div>
+          <div class="user-role">Сметчик · Алматы</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═════════════ MAIN ═════════════ -->
+  <main class="main">
+
+    <!-- ═════════════════════════════════════════════════════════ -->
+    <!-- ═══════════════════ VIEW: LIST  ═══════════════════════════ -->
+    <!-- ═════════════════════════════════════════════════════════ -->
+    <div data-view="list" class="show">
+
+      <!-- Topbar (list) -->
+      <header class="topbar">
+        <div class="breadcrumbs">
+          <span class="crumb-here">Сметы</span>
+          <span style="color:var(--ink-mute); margin-left:8px;">· все активные</span>
+        </div>
+        <div class="top-actions">
+          <button class="btn btn-ghost">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+            Сортировка
+          </button>
+          <button class="btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m-4-4l4 4 4-4M3 21h18"/></svg>
+            Экспорт
+          </button>
+          <button class="btn btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+            Новая смета
+          </button>
+        </div>
+      </header>
+
+      <div class="content">
+        <div class="list-head">
+          <div>
+            <h1 class="page-title" style="margin:0 0 6px;">Сметы по <em>портфелю</em></h1>
+            <div class="page-meta">
+              <span><span class="dot"></span>12 активных · 3 на согласовании</span>
+              <span>Регионы: 5 из 17</span>
+              <span>Обновлено 14:22</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="list-stats">
+          <div class="stat-cell">
+            <div class="k">Смет в работе</div>
+            <div class="v">12</div>
+            <div class="delta up">▲ 3 за месяц</div>
+          </div>
+          <div class="stat-cell">
+            <div class="k">Сумма портфеля, ₸/мес</div>
+            <div class="v">68,4 <em>млн</em></div>
+            <div class="delta up">▲ 12,3%</div>
+          </div>
+          <div class="stat-cell">
+            <div class="k">Средняя маржа</div>
+            <div class="v">19,7 <em>%</em></div>
+            <div class="delta neutral">— выше минимума</div>
+          </div>
+          <div class="stat-cell">
+            <div class="k">Среднее время расчёта</div>
+            <div class="v">13 <em>мин</em></div>
+            <div class="delta neutral">— на смету</div>
+          </div>
+        </div>
+
+        <!-- Filter bar -->
+        <div class="filter-bar">
+          <div class="chip active">Все <span class="count">12</span></div>
+          <div class="chip">Черновики <span class="count">4</span></div>
+          <div class="chip">На согласовании <span class="count">3</span></div>
+          <div class="chip">Согласованы <span class="count">2</span></div>
+          <div class="chip">Отправлены <span class="count">2</span></div>
+          <div class="chip">На доработке <span class="count">1</span></div>
+          <div class="search-input">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input placeholder="Поиск по клиенту, объекту, №">
+          </div>
+        </div>
+
+        <!-- Estimate list -->
+        <div class="est-list">
+          <div class="est-head-row">
+            <div>№ сметы</div>
+            <div>Клиент</div>
+            <div>Объект</div>
+            <div>Регион</div>
+            <div style="text-align:right">Выручка/мес</div>
+            <div>Маржа</div>
+            <div>Статус</div>
+            <div></div>
+          </div>
+
+          <!-- MALL — main demo estimate -->
+          <div class="est-row" data-open="mall">
+            <div class="est-num">EST-2026-0412</div>
+            <div class="est-client">
+              Клиент A
+              <small>B2B · БИН ••• ••• ••• •••</small>
+            </div>
+            <div class="est-obj">
+              <span class="type-chip">ТРЦ</span>Объект № 12
+              <small>29 500 м² · круглогодично</small>
+            </div>
+            <div><span class="est-region">Алматы</span></div>
+            <div class="est-amount">11 370 000</div>
+            <div class="est-margin">
+              <span>19,5%</span>
+              <div class="margin-bar" style="--w:78%"></div>
+            </div>
+            <div><span class="status-pill status-draft">Черновик</span></div>
+            <div class="est-arrow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+            </div>
+          </div>
+
+          <!-- PARK — second demo estimate -->
+          <div class="est-row" data-open="park">
+            <div class="est-num">EST-2026-0318</div>
+            <div class="est-client">
+              Клиент B
+              <small>B2B · БИН ••• ••• ••• •••</small>
+            </div>
+            <div class="est-obj">
+              <span class="type-chip">Парк</span>Парк № 7
+              <small>8 750 м² · апр–ноя сезон</small>
+            </div>
+            <div><span class="est-region">Алматы</span></div>
+            <div class="est-amount">6 635 000</div>
+            <div class="est-margin">
+              <span>24,1%</span>
+              <div class="margin-bar" style="--w:96%"></div>
+            </div>
+            <div><span class="status-pill status-draft">Черновик</span></div>
+            <div class="est-arrow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+            </div>
+          </div>
+
+          <!-- Other estimates — static demo rows -->
+          <div class="est-row">
+            <div class="est-num">EST-2026-0389</div>
+            <div class="est-client">
+              Клиент C
+              <small>B2B · БИН ••• ••• ••• •••</small>
+            </div>
+            <div class="est-obj">
+              <span class="type-chip">БЦ</span>Бизнес-центр № 3
+              <small>12 400 м² · круглогодично</small>
+            </div>
+            <div><span class="est-region">Астана</span></div>
+            <div class="est-amount">5 820 000</div>
+            <div class="est-margin">
+              <span>21,3%</span>
+              <div class="margin-bar" style="--w:85%"></div>
+            </div>
+            <div><span class="status-pill status-review">На согласовании</span></div>
+            <div class="est-arrow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+            </div>
+          </div>
+
+          <div class="est-row">
+            <div class="est-num">EST-2026-0365</div>
+            <div class="est-client">
+              Клиент D
+              <small>B2B · БИН ••• ••• ••• •••</small>
+            </div>
+            <div class="est-obj">
+              <span class="type-chip">Банк</span>Отделения × 14
+              <small>сеть · Шымкент + Туркестан</small>
+            </div>
+            <div><span class="est-region">Шымкент</span></div>
+            <div class="est-amount">18 940 000</div>
+            <div class="est-margin">
+              <span>17,8%</span>
+              <div class="margin-bar" style="--w:71%"></div>
+            </div>
+            <div><span class="status-pill status-sent">Отправлена</span></div>
+            <div class="est-arrow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+            </div>
+          </div>
+
+          <div class="est-row">
+            <div class="est-num">EST-2026-0341</div>
+            <div class="est-client">
+              Клиент E
+              <small>B2B · БИН ••• ••• ••• •••</small>
+            </div>
+            <div class="est-obj">
+              <span class="type-chip">ТРЦ</span>Объект № 8
+              <small>42 000 м² · 3 этажа</small>
+            </div>
+            <div><span class="est-region">Атырау</span></div>
+            <div class="est-amount">23 180 000</div>
+            <div class="est-margin" style="color:var(--amber);">
+              <span>13,2%</span>
+              <div class="margin-bar warn" style="--w:53%"></div>
+            </div>
+            <div><span class="status-pill status-rework">Доработка</span></div>
+            <div class="est-arrow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+            </div>
+          </div>
+
+          <div class="est-row">
+            <div class="est-num">EST-2026-0319</div>
+            <div class="est-client">
+              Клиент F
+              <small>B2B · БИН ••• ••• ••• •••</small>
+            </div>
+            <div class="est-obj">
+              <span class="type-chip">Парк</span>Парк № 2
+              <small>14 200 м² · апр–окт сезон</small>
+            </div>
+            <div><span class="est-region">Караганда</span></div>
+            <div class="est-amount">8 950 000</div>
+            <div class="est-margin">
+              <span>22,7%</span>
+              <div class="margin-bar" style="--w:91%"></div>
+            </div>
+            <div><span class="status-pill status-approved">Согласована</span></div>
+            <div class="est-arrow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+            </div>
+          </div>
+
+          <div class="est-row">
+            <div class="est-num">EST-2026-0287</div>
+            <div class="est-client">
+              Клиент G
+              <small>B2B · БИН ••• ••• ••• •••</small>
+            </div>
+            <div class="est-obj">
+              <span class="type-chip">БЦ</span>Бизнес-центр № 9
+              <small>6 800 м² · класс B</small>
+            </div>
+            <div><span class="est-region">Актау</span></div>
+            <div class="est-amount">4 210 000</div>
+            <div class="est-margin">
+              <span>18,9%</span>
+              <div class="margin-bar" style="--w:76%"></div>
+            </div>
+            <div><span class="status-pill status-review">На согласовании</span></div>
+            <div class="est-arrow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+            </div>
+          </div>
+
+          <div class="est-row">
+            <div class="est-num">EST-2026-0256</div>
+            <div class="est-client">
+              Клиент H
+              <small>B2B · БИН ••• ••• ••• •••</small>
+            </div>
+            <div class="est-obj">
+              <span class="type-chip">ТРЦ</span>Объект № 5
+              <small>18 500 м² · 2 этажа</small>
+            </div>
+            <div><span class="est-region">Алматы</span></div>
+            <div class="est-amount">9 640 000</div>
+            <div class="est-margin">
+              <span>20,4%</span>
+              <div class="margin-bar" style="--w:82%"></div>
+            </div>
+            <div><span class="status-pill status-approved">Согласована</span></div>
+            <div class="est-arrow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+            </div>
+          </div>
+
+          <div class="est-row">
+            <div class="est-num">EST-2026-0198</div>
+            <div class="est-client">
+              Клиент I
+              <small>B2B · БИН ••• ••• ••• •••</small>
+            </div>
+            <div class="est-obj">
+              <span class="type-chip">Банк</span>Головной офис
+              <small>3 200 м² · клининг + ресепшн</small>
+            </div>
+            <div><span class="est-region">Астана</span></div>
+            <div class="est-amount">2 840 000</div>
+            <div class="est-margin">
+              <span>25,1%</span>
+              <div class="margin-bar" style="--w:100%"></div>
+            </div>
+            <div><span class="status-pill status-sent">Отправлена</span></div>
+            <div class="est-arrow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; text-align:center; font-size:12px; color:var(--ink-mute);">
+          Показано 9 из 12 · <a href="#" style="color:var(--green-deep); font-weight:500; text-decoration:none;">Показать ещё →</a>
+        </div>
+      </div>
+    </div><!-- /view list -->
+
+    <!-- ═════════════════════════════════════════════════════════ -->
+    <!-- ═══════════════════ VIEW: DETAIL  ═════════════════════════ -->
+    <!-- ═════════════════════════════════════════════════════════ -->
+    <div data-view="detail">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="breadcrumbs">
+        <span class="back-link" data-back="true">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg>
+          Сметы
+        </span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+        <span data-swap="clientName">клиента A</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+        <span class="crumb-here">№ <span data-swap="estimateId">EST-2026-0412</span> · <span data-swap="estimateType">Клининг ТРЦ</span></span>
+      </div>
+      <div class="top-actions">
+        <button class="btn btn-ghost">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-4M12 12V4M4 12h4M16 12h4"/></svg>
+          История
+        </button>
+        <button class="btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m-4-4l4 4 4-4M3 21h18"/></svg>
+          Excel
+        </button>
+        <button class="btn btn-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 13l4 4L19 7"/></svg>
+          Отправить на согласование
+        </button>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- Title row -->
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">Смета для <em><span data-swap="clientName">клиента A</span></em>,<br><span data-swap="titleType">клининг ТРЦ</span></h1>
+          <div class="page-meta">
+            <span><span class="dot"></span>Черновик · автосохранение 14:22</span>
+            <span>Период: <span data-swap="period">01.05.2026 — 30.04.2027</span></span>
+            <span>Автор: Айгуль Ж.</span>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <button class="region-select">
+            <span class="region-flag"></span>
+            <span data-swap="regionName">Алматы</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <span class="status-chip">
+            <span style="width:6px;height:6px;border-radius:50%;background:var(--green-deep);"></span>
+            <span data-swap="status">DRAFT v3</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Stepper -->
+      <div class="stepper">
+        <div class="step done">
+          <span class="step-num">✓</span>
+          <span class="step-label">Клиент и объект<small><span data-swap="stepClient">Клиент A · Объект № 12</span></small></span>
+        </div>
+        <div class="step done">
+          <span class="step-num">✓</span>
+          <span class="step-label">Разделы и параметры<small><span data-swap="stepSections">4 раздела, 29 500 м²</span></small></span>
+        </div>
+        <div class="step active">
+          <span class="step-num">3</span>
+          <span class="step-label">Штат и ЗП<small><span data-swap="stepStaff">5 должностей</span></small></span>
+        </div>
+        <div class="step">
+          <span class="step-num">4</span>
+          <span class="step-label">Инвентарь и химия<small><span data-swap="stepInv">14 позиций</span></small></span>
+        </div>
+        <div class="step">
+          <span class="step-num">5</span>
+          <span class="step-label">Финмодель и маржа<small>КПН 20%</small></span>
+        </div>
+        <div class="step">
+          <span class="step-num">6</span>
+          <span class="step-label">Согласование<small></small></span>
+        </div>
+      </div>
+
+      <!-- Grid -->
+      <div class="grid">
+
+        <div class="col-main">
+          <div data-scenario-view="mall" class="show">
+
+          <!-- === STEP 1: Клиент и объект === -->
+          <div data-step-content="1">
+          <div class="card" style="margin-bottom:20px;">
+            <div class="client-strip">
+              <div class="client-cell">
+                <div class="k">Клиент</div>
+                <div class="v">Клиент A (B2B)</div>
+                <div style="font-size:11px; color:var(--ink-mute); margin-top:2px;">БИН ••• ••• ••• •••</div>
+              </div>
+              <div class="client-cell">
+                <div class="k">Объект</div>
+                <div class="v">ТРЦ № 12</div>
+                <div style="font-size:11px; color:var(--ink-mute); margin-top:2px;">Алматы · 2 этажа + паркинг</div>
+              </div>
+              <div class="client-cell">
+                <div class="k">Общая площадь</div>
+                <div class="v">29 500 <small>м²</small></div>
+                <div style="font-size:11px; color:var(--ink-mute); margin-top:2px;">25 000 внутр. + 4 500 терр.</div>
+              </div>
+              <div class="client-cell">
+                <div class="k">Налоговый контур</div>
+                <div class="v">39,5% <small>ЗП</small> · 16% <small>НДС</small></div>
+                <div style="font-size:11px; color:var(--ink-mute); margin-top:2px;">клининг и территория</div>
+              </div>
+            </div>
+
+          </div><!-- client card -->
+          </div><!-- /step 1 mall -->
+
+          <!-- === STEP 2: Разделы услуг === -->
+          <div data-step-content="2">
+          <div class="card" style="margin-bottom:20px;">
+            <div class="card-head">
+              <div>
+                <h3>Разделы услуг и площади</h3>
+                <div class="hint" style="margin-top:4px;">Включите применимые разделы и задайте м² / численность. Регионные тарифы подтягиваются автоматически.</div>
+              </div>
+              <button class="btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                Добавить раздел
+              </button>
+            </div>
+            <!-- Sections -->
+            <div>
+              <div class="section-row enabled">
+                <div class="sec-left">
+                  <div class="sec-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-8h6v8M3 21h18"/></svg></div>
+                  <div>
+                    <div class="sec-title">Клининг внутренних помещений</div>
+                    <div class="sec-meta">Торговые залы, атриум, санузлы, служебные · 2 смены · круглогодично</div>
+                  </div>
+                </div>
+                <div class="sec-input">
+                  <input class="input" value="25 000" readonly>
+                  <span class="unit">м²</span>
+                  <div class="toggle on" style="margin-left:8px;"></div>
+                </div>
+              </div>
+
+              <div class="section-row enabled">
+                <div class="sec-left">
+                  <div class="sec-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h3l2-6 4 12 2-6h7"/></svg></div>
+                  <div>
+                    <div class="sec-title">Территория — лето</div>
+                    <div class="sec-meta">Паркинг, входная зона · май–октябрь · тарифы по Алматы</div>
+                  </div>
+                </div>
+                <div class="sec-input">
+                  <input class="input" value="4 500" readonly>
+                  <span class="unit">м²</span>
+                  <div class="toggle on" style="margin-left:8px;"></div>
+                </div>
+              </div>
+
+              <div class="section-row enabled">
+                <div class="sec-left">
+                  <div class="sec-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h2M20 12h2M12 2v2M12 20v2M6 6l1.5 1.5M16.5 16.5L18 18M6 18l1.5-1.5M16.5 7.5L18 6M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg></div>
+                  <div>
+                    <div class="sec-title">Территория — зима</div>
+                    <div class="sec-meta">Снегоуборка, реагент · ноябрь–март · доп. ФОТ и расходники</div>
+                  </div>
+                </div>
+                <div class="sec-input">
+                  <input class="input" value="4 500" readonly>
+                  <span class="unit">м²</span>
+                  <div class="toggle on" style="margin-left:8px;"></div>
+                </div>
+              </div>
+
+              <div class="section-row enabled">
+                <div class="sec-left">
+                  <div class="sec-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M5 21a7 7 0 0114 0"/></svg></div>
+                  <div>
+                    <div class="sec-title">Дополнительный персонал</div>
+                    <div class="sec-meta">Электрик · сантехник · кофе-леди</div>
+                  </div>
+                </div>
+                <div class="sec-input">
+                  <input class="input" value="3" readonly>
+                  <span class="unit">чел</span>
+                  <div class="toggle on" style="margin-left:8px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div><!-- /step 2 mall -->
+
+          <!-- Staff table — MAIN CARD with salary widget -->
+          <div data-step-content="3">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3>Штатное расписание и ЗП</h3>
+                <div class="hint" style="margin-top:4px;">Регион <strong style="color:var(--ink);">Алматы</strong> · обновлено из внешних источников 20.04.2026 · источник по умолчанию: медиана</div>
+              </div>
+              <button class="btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-3-6.7L21 8M21 3v5h-5"/></svg>
+                Обновить ставки
+              </button>
+            </div>
+
+            <div class="approval-note">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+              <div>
+                <strong>Snapshot нормативов будет зафиксирован при сохранении.</strong> Все выбранные ставки ЗП, источники и даты закрепляются за этой сметой — пересчёт по новым справочникам не повлияет на уже подписанные версии.
+              </div>
+            </div>
+
+            <div class="staff-head">
+              <div>Должность</div>
+              <div style="text-align:center">Числ.</div>
+              <div>Диапазон ЗП по региону (₸/мес, на руки)</div>
+              <div style="text-align:right">Выбрано</div>
+              <div style="text-align:right">Итого ФОТ</div>
+            </div>
+
+            <!-- Row 1 — Уборщица ОПУ — main position for mall, HH source, median selected -->
+            <div class="staff-row">
+              <div>
+                <div class="pos-name">Уборщица ОПУ</div>
+                <div class="pos-meta">Клининг внутр. помещений · 39,5%</div>
+                <div class="pos-area">
+                  <span class="auto-tag">АВТО</span>
+                  25 000 м² ÷ 1 560 × 2 смены = 16 чел
+                </div>
+              </div>
+              <div style="text-align:center">
+                <div class="headcount-stepper">
+                  <button class="hc-btn">−</button>
+                  <div class="hc-val">16</div>
+                  <button class="hc-btn">+</button>
+                </div>
+              </div>
+              <div class="salary-widget">
+                <div class="salary-track">
+                  <div class="salary-btn">
+                    <span class="salary-label">Мин</span>
+                    <span class="salary-val">125 000</span>
+                  </div>
+                  <div class="salary-btn selected">
+                    <span class="salary-label">Медиана</span>
+                    <span class="salary-val">150 000</span>
+                  </div>
+                  <div class="salary-btn">
+                    <span class="salary-label">Макс</span>
+                    <span class="salary-val">185 000</span>
+                  </div>
+                </div>
+                <div class="salary-source">
+                  <span class="source-pill hh">внешн.</span>
+                  обновлено 3 дня назад · 128 вакансий
+                </div>
+              </div>
+              <div class="fot-cell">
+                150 000
+                <small>× 16 = 2 400 000</small>
+              </div>
+              <div class="fot-cell">
+                3 348 000 ₸
+                <small>+ налоги 39,5%</small>
+              </div>
+            </div>
+
+            <!-- Row 2 — Дворник — max selected, flagged -->
+            <div class="staff-row">
+              <div>
+                <div class="pos-name">Дворник</div>
+                <div class="pos-meta">Территория лето/зима · 39,5%</div>
+                <div class="pos-area">
+                  <span class="auto-tag">АВТО</span>
+                  4 500 м² ÷ 1 200 = 4 чел
+                </div>
+              </div>
+              <div style="text-align:center">
+                <div class="headcount-stepper">
+                  <button class="hc-btn">−</button>
+                  <div class="hc-val">4</div>
+                  <button class="hc-btn">+</button>
+                </div>
+              </div>
+              <div class="salary-widget">
+                <div class="salary-track">
+                  <div class="salary-btn">
+                    <span class="salary-label">Мин</span>
+                    <span class="salary-val">135 000</span>
+                  </div>
+                  <div class="salary-btn">
+                    <span class="salary-label">Медиана</span>
+                    <span class="salary-val">175 000</span>
+                  </div>
+                  <div class="salary-btn selected">
+                    <span class="salary-label">Макс</span>
+                    <span class="salary-val">220 000</span>
+                  </div>
+                </div>
+                <div class="salary-source">
+                  <span class="source-pill hh">внешн.</span>
+                  32 вакансии
+                  <span style="color:var(--amber); margin-left:auto; font-weight:600;">⚑ выбран макс</span>
+                </div>
+              </div>
+              <div class="fot-cell">
+                220 000
+                <small>× 4 = 880 000</small>
+              </div>
+              <div class="fot-cell">
+                1 227 600 ₸
+                <small>+ налоги 39,5%</small>
+              </div>
+            </div>
+
+            <!-- Row 3 — Бригадир клининга — manual source -->
+            <div class="staff-row">
+              <div>
+                <div class="pos-name">Бригадир клининга</div>
+                <div class="pos-meta">Линейный руководитель · 39,5%</div>
+                <div class="pos-area">
+                  <span class="auto-tag">АВТО</span>
+                  1 бригадир на 12 чел = 2 чел
+                </div>
+              </div>
+              <div style="text-align:center">
+                <div class="headcount-stepper">
+                  <button class="hc-btn">−</button>
+                  <div class="hc-val">2</div>
+                  <button class="hc-btn">+</button>
+                </div>
+              </div>
+              <div class="salary-widget">
+                <div class="salary-track">
+                  <div class="salary-btn">
+                    <span class="salary-label">Мин</span>
+                    <span class="salary-val">280 000</span>
+                  </div>
+                  <div class="salary-btn selected">
+                    <span class="salary-label">Медиана</span>
+                    <span class="salary-val">350 000</span>
+                  </div>
+                  <div class="salary-btn">
+                    <span class="salary-label">Макс</span>
+                    <span class="salary-val">450 000</span>
+                  </div>
+                </div>
+                <div class="salary-source">
+                  <span class="source-pill manual">manual</span>
+                  внутренний прайс · 15.01.2026
+                </div>
+              </div>
+              <div class="fot-cell">
+                350 000
+                <small>× 2 = 700 000</small>
+              </div>
+              <div class="fot-cell">
+                976 500 ₸
+                <small>+ налоги 39,5%</small>
+              </div>
+            </div>
+
+            <!-- Row 4 — Кофе-леди — low sample (редкая специальность на hh.kz) -->
+            <div class="staff-row">
+              <div>
+                <div class="pos-name">Кофе-леди</div>
+                <div class="pos-meta">Обслуживание VIP-зон · 39,5%</div>
+                <div class="pos-area" style="color:var(--ink-mute);">
+                  По запросу · 1 чел
+                </div>
+              </div>
+              <div style="text-align:center">
+                <div class="headcount-stepper">
+                  <button class="hc-btn">−</button>
+                  <div class="hc-val">1</div>
+                  <button class="hc-btn">+</button>
+                </div>
+              </div>
+              <div class="salary-widget">
+                <div class="salary-track">
+                  <div class="salary-btn">
+                    <span class="salary-label">Мин</span>
+                    <span class="salary-val">180 000</span>
+                  </div>
+                  <div class="salary-btn selected">
+                    <span class="salary-label">Медиана</span>
+                    <span class="salary-val">230 000</span>
+                  </div>
+                  <div class="salary-btn">
+                    <span class="salary-label">Макс</span>
+                    <span class="salary-val">290 000</span>
+                  </div>
+                </div>
+                <div class="salary-source">
+                  <span class="source-pill low-sample">внешн. · 7 вак.</span>
+                  недостаточная выборка (&lt; 10)
+                </div>
+                <div class="warn-note">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l10 18H2L12 2z"/><path d="M12 9v5M12 17h.01"/></svg>
+                  Рекомендуем сверить с manual-прайсом или 1С
+                </div>
+              </div>
+              <div class="fot-cell">
+                230 000
+                <small>× 1 = 230 000</small>
+              </div>
+              <div class="fot-cell">
+                320 850 ₸
+                <small>+ налоги 39,5%</small>
+              </div>
+            </div>
+
+            <!-- Row 5 — Электрик -->
+            <div class="staff-row">
+              <div>
+                <div class="pos-name">Электрик</div>
+                <div class="pos-meta">Доп. персонал · 39,5%</div>
+                <div class="pos-area" style="color:var(--ink-mute);">
+                  По запросу · 1 чел
+                </div>
+              </div>
+              <div style="text-align:center">
+                <div class="headcount-stepper">
+                  <button class="hc-btn">−</button>
+                  <div class="hc-val">1</div>
+                  <button class="hc-btn">+</button>
+                </div>
+              </div>
+              <div class="salary-widget">
+                <div class="salary-track">
+                  <div class="salary-btn">
+                    <span class="salary-label">Мин</span>
+                    <span class="salary-val">240 000</span>
+                  </div>
+                  <div class="salary-btn selected">
+                    <span class="salary-label">Медиана</span>
+                    <span class="salary-val">310 000</span>
+                  </div>
+                  <div class="salary-btn">
+                    <span class="salary-label">Макс</span>
+                    <span class="salary-val">395 000</span>
+                  </div>
+                </div>
+                <div class="salary-source">
+                  <span class="source-pill hh">внешн.</span>
+                  28 вакансий · 20.04
+                </div>
+              </div>
+              <div class="fot-cell">
+                310 000
+                <small>× 1 = 310 000</small>
+              </div>
+              <div class="fot-cell">
+                432 450 ₸
+                <small>+ налоги 39,5%</small>
+              </div>
+            </div>
+          </div>
+          </div><!-- /step 3 -->
+
+          <!-- ═════ INVENTORY & CHEMICALS (MALL) ═════ -->
+          <div data-step-content="4">
+          <div class="card" style="margin-top:0;">
+            <div class="card-head">
+              <div>
+                <h3>Инвентарь и химия</h3>
+                <div class="hint" style="margin-top:4px;">Регион <strong style="color:var(--ink);">Алматы</strong> · базовый прайс + поправка 0% · всего позиций: 14</div>
+              </div>
+              <button class="btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                Добавить позицию
+              </button>
+            </div>
+
+            <div class="inv-grid">
+              <!-- === EQUIPMENT (ТРЦ) === -->
+              <div class="inv-col">
+                <div class="inv-col-head">
+                  <div class="inv-col-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                    Инвентарь и оборудование
+                  </div>
+                  <div class="inv-col-sum">310 000 ₸/мес</div>
+                </div>
+
+                <div class="inv-row">
+                  <div class="inv-name">
+                    Поломоечная машина Karcher
+                    <small>BD 50/50 · амортизация 36 мес</small>
+                  </div>
+                  <div class="inv-qty">2</div>
+                  <div class="inv-price">780 000</div>
+                  <div class="inv-cost">
+                    43 333
+                    <small>(2×780к ÷ 36)</small>
+                  </div>
+                </div>
+
+                <div class="inv-row">
+                  <div class="inv-name">
+                    Пылесос промышленный
+                    <small>Soteco · амортизация 24 мес</small>
+                  </div>
+                  <div class="inv-qty">6</div>
+                  <div class="inv-price">95 000</div>
+                  <div class="inv-cost">
+                    23 750
+                    <small>(6×95к ÷ 24)</small>
+                  </div>
+                </div>
+
+                <div class="inv-row">
+                  <div class="inv-name">
+                    Тележка уборщика
+                    <small>двухведёрная · амортизация 18 мес</small>
+                  </div>
+                  <div class="inv-qty">16</div>
+                  <div class="inv-price">42 000</div>
+                  <div class="inv-cost">
+                    37 333
+                    <small>(16×42к ÷ 18)</small>
+                  </div>
+                </div>
+
+                <div class="inv-row">
+                  <div class="inv-name">
+                    Снегоуборщик бензиновый
+                    <small>сезон ноя–мар · амортизация 60 мес</small>
+                  </div>
+                  <div class="inv-qty">2</div>
+                  <div class="inv-price">320 000</div>
+                  <div class="inv-cost">
+                    21 333
+                    <small>сезон × 12/5</small>
+                  </div>
+                </div>
+
+                <div class="inv-row">
+                  <div class="inv-name">
+                    Мётлы, швабры, ручной инвентарь
+                    <small>комплект на бригаду · 12 мес</small>
+                  </div>
+                  <div class="inv-qty">24</div>
+                  <div class="inv-price">8 500</div>
+                  <div class="inv-cost">
+                    17 000
+                    <small>(24×8,5к ÷ 12)</small>
+                  </div>
+                </div>
+
+                <div class="inv-row">
+                  <div class="inv-name">
+                    Униформа клинеров
+                    <small>2 комплекта/чел · 12 мес</small>
+                  </div>
+                  <div class="inv-qty">32</div>
+                  <div class="inv-price">18 000</div>
+                  <div class="inv-cost">
+                    48 000
+                    <small>(32×18к ÷ 12)</small>
+                  </div>
+                </div>
+
+                <div class="inv-row">
+                  <div class="inv-name">
+                    СИЗ (перчатки, маски, обувь)
+                    <small>износ · ежеквартально</small>
+                  </div>
+                  <div class="inv-qty">16</div>
+                  <div class="inv-price">42 500</div>
+                  <div class="inv-cost">
+                    56 667
+                    <small>квартально ÷ 3</small>
+                  </div>
+                </div>
+
+                <div class="inv-row">
+                  <div class="inv-name">
+                    Лестницы, леса (высотные)
+                    <small>витрины, атриум · 48 мес</small>
+                  </div>
+                  <div class="inv-qty">2</div>
+                  <div class="inv-price">148 000</div>
+                  <div class="inv-cost">
+                    6 167
+                    <small>(2×148к ÷ 48)</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- === CONSUMABLES (ТРЦ) === -->
+              <div class="inv-col">
+                <div class="inv-col-head">
+                  <div class="inv-col-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6v4l3 3v11H6V10l3-3V3z"/><path d="M9 11h6M9 15h6"/></svg>
+                    Химия и расходники
+                  </div>
+                  <div class="inv-col-sum">680 000 ₸/мес</div>
+                </div>
+
+                <div class="inv-row">
+                  <div class="inv-name">
+                    Универсальное средство для полов
+                    <small>Prosept · норма 15 мл/м²</small>
+                  </div>
+                  <div class="inv-qty">45 л</div>
+                  <div class="inv-price">2 800</div>
+                  <div class="inv-cost">
+                    126 000
+                    <small>45 × 2,8к</small>
+                  </div>
+                </div>
+
+                <div class="inv-row">
+                  <div class="inv-name">
+                    Средство для санузлов
+                    <small>антибактериальное · WC Cleaner</small>
+                  </div>
+                  <div class="inv-qty">28 л</div>
+                  <div class="inv-price">3 200</div>
+                  <div class="inv-cost">
+                    89 600
+                    <small>28 × 3,2к</small>
+                  </div>
+                </div>
+
+                <div class="inv-row">
+                  <div class="inv-name">
+                    Средство для стекла и зеркал
+                    <small>Glass Cleaner · распыление</small>
+                  </div>
+                  <div class="inv-qty">18 л</div>
+                  <div class="inv-price">2 400</div>
+                  <div class="inv-cost">
+                    43 200
+                    <small>18 × 2,4к</small>
+                  </div>
+                </div>
+
+                <div class="inv-row">
+                  <div class="inv-name">
+                    Мешки для мусора
+                    <small>240 л · 50 л · 30 л</small>
+                  </div>
+                  <div class="inv-qty">4 200</div>
+                  <div class="inv-price">38</div>
+                  <div class="inv-cost">
+                    159 600
+                    <small>4200 × 38</small>
+                  </div>
+                </div>
+
+                <div class="inv-row">
+                  <div class="inv-name">
+                    Микрофибра, салфетки
+                    <small>комплект на смену · оборот 2 нед</small>
+                  </div>
+                  <div class="inv-qty">320</div>
+                  <div class="inv-price">280</div>
+                  <div class="inv-cost">
+                    89 600
+                    <small>320 × 280</small>
+                  </div>
+                </div>
+
+                <div class="inv-row">
+                  <div class="inv-name">
+                    Туалетная бумага, мыло, полотенца
+                    <small>дозаторы · санузлы ТРЦ<small></small>
+                  </div>
+                  <div class="inv-qty">—</div>
+                  <div class="inv-price">—</div>
+                  <div class="inv-cost">
+                    92 000
+                    <small>общий бюджет</small>
+                  </div>
+                </div>
+
+                <div class="inv-row">
+                  <div class="inv-name">
+                    Техническая соль, реагент
+                    <small>сезон ноя–мар · усред. за год</small>
+                  </div>
+                  <div class="inv-qty">1,2 т</div>
+                  <div class="inv-price">48 000</div>
+                  <div class="inv-cost">
+                    57 600
+                    <small>1,2 × 48к × 5/12</small>
+                  </div>
+                </div>
+
+                <div class="inv-row">
+                  <div class="inv-name">
+                    ГСМ (бензин для снегоуборщика)
+                    <small>АИ-92 · сезон ноя–мар</small>
+                  </div>
+                  <div class="inv-qty">130 л</div>
+                  <div class="inv-price">240</div>
+                  <div class="inv-cost">
+                    22 400
+                    <small>сезонно × 5/12</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="inv-summary">
+              <div class="inv-sum-cell">
+                <div class="k">Амортизация инвентаря</div>
+                <div class="v">253 583<small>₸/мес</small></div>
+              </div>
+              <div class="inv-sum-cell">
+                <div class="k">Химия и расходники</div>
+                <div class="v">680 000<small>₸/мес</small></div>
+              </div>
+              <div class="inv-sum-cell">
+                <div class="k">Итого</div>
+                <div class="v">933 583<small>₸/мес · 8,2% от выручки</small></div>
+              </div>
+            </div>
+          </div>
+          </div><!-- /step 4 -->
+
+          <!-- === STEP 5: Финмодель и маржа === -->
+          <div data-step-content="5">
+            <div class="fin-hero">
+              <div class="fin-hero-cell">
+                <div class="hk">Выручка без НДС</div>
+                <div class="hv">11,37 <small>млн ₸</small></div>
+                <div class="hd">в месяц · 136,4 млн/год</div>
+              </div>
+              <div class="fin-hero-cell">
+                <div class="hk">Себестоимость</div>
+                <div class="hv">8,60 <small>млн ₸</small></div>
+                <div class="hd">75,7% от выручки</div>
+              </div>
+              <div class="fin-hero-cell">
+                <div class="hk">Чистая прибыль</div>
+                <div class="hv">2,21 <small>млн ₸</small></div>
+                <div class="hd">после КПН 20%</div>
+              </div>
+              <div class="fin-hero-cell accent">
+                <div class="hk">Маржа</div>
+                <div class="hv">19,5<small>%</small></div>
+                <div class="hd">выше мин. порога 15%</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3>Детализация финансовой модели</h3>
+                  <div class="hint" style="margin-top:4px;">Все формулы воспроизведены из шаблона сметы. По каждой цифре можно раскрыть исходные значения.</div>
+                </div>
+                <div style="display:flex; gap:8px;">
+                  <button class="btn">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-4M12 12V4M4 12h4M16 12h4"/></svg>
+                    Формулы
+                  </button>
+                  <button class="btn">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m-4-4l4 4 4-4M3 21h18"/></svg>
+                    Excel
+                  </button>
+                </div>
+              </div>
+
+              <div class="fin-full">
+                <!-- Revenue side -->
+                <div class="fin-full-col">
+                  <div class="fin-full-head">
+                    <div class="fin-full-title">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V9l9-6 9 6v12"/></svg>
+                      Выручка по разделам
+                    </div>
+                    <div class="fin-full-sum">11 370 000 ₸</div>
+                  </div>
+
+                  <div class="fin-full-row">
+                    <div class="fin-k">
+                      Клининг ТРЦ
+                      <small>25 000 м² × 390 ₸/м²</small>
+                    </div>
+                    <div class="fin-formula">25 000 × 390</div>
+                    <div class="fin-v">9 750 000</div>
+                  </div>
+                  <div class="fin-full-row">
+                    <div class="fin-k">
+                      Территория (усред.)
+                      <small>4 500 м² × 200 ₸/м²</small>
+                    </div>
+                    <div class="fin-formula">4 500 × 200</div>
+                    <div class="fin-v">900 000</div>
+                  </div>
+                  <div class="fin-full-row">
+                    <div class="fin-k">
+                      Доп. персонал
+                      <small>3 чел × ставки</small>
+                    </div>
+                    <div class="fin-formula">фикс</div>
+                    <div class="fin-v">720 000</div>
+                  </div>
+                  <div class="fin-full-row total">
+                    <div class="fin-k">Итого выручка без НДС</div>
+                    <div class="fin-formula">Σ</div>
+                    <div class="fin-v">11 370 000</div>
+                  </div>
+
+                  <div class="fin-full-head" style="margin-top:0;">
+                    <div class="fin-full-title">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg>
+                      НДС и итого с НДС
+                    </div>
+                  </div>
+                  <div class="fin-full-row">
+                    <div class="fin-k">
+                      НДС
+                      <small>ставка 16%</small>
+                    </div>
+                    <div class="fin-formula">× 16%</div>
+                    <div class="fin-v">1 819 200</div>
+                  </div>
+                  <div class="fin-full-row total">
+                    <div class="fin-k">Выручка с НДС</div>
+                    <div class="fin-formula">× 1,16</div>
+                    <div class="fin-v">13 189 200</div>
+                  </div>
+                </div>
+
+                <!-- Cost side -->
+                <div class="fin-full-col">
+                  <div class="fin-full-head">
+                    <div class="fin-full-title">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14h18V6l-3-4M3 6h18"/></svg>
+                      Себестоимость
+                    </div>
+                    <div class="fin-full-sum">8 602 935 ₸</div>
+                  </div>
+
+                  <div class="fin-full-row">
+                    <div class="fin-k">
+                      ФОТ (на руки)
+                      <small>5 должностей, 24 чел</small>
+                    </div>
+                    <div class="fin-formula">Σ ЗП × числ.</div>
+                    <div class="fin-v">4 520 000</div>
+                  </div>
+                  <div class="fin-full-row">
+                    <div class="fin-k">
+                      Налоги на ЗП
+                      <small>ставка 39,5%</small>
+                    </div>
+                    <div class="fin-formula">× 39,5%</div>
+                    <div class="fin-v">1 785 400</div>
+                  </div>
+                  <div class="fin-full-row">
+                    <div class="fin-k">
+                      Отпускной резерв
+                      <small>(ФОТ + налоги) ÷ 12</small>
+                    </div>
+                    <div class="fin-formula">(F+N) ÷ 12</div>
+                    <div class="fin-v">525 450</div>
+                  </div>
+                  <div class="fin-full-row">
+                    <div class="fin-k">
+                      Амортизация инвентаря
+                      <small>Karcher, пылесосы, тележки...</small>
+                    </div>
+                    <div class="fin-formula">Σ цена ÷ период</div>
+                    <div class="fin-v">253 583</div>
+                  </div>
+                  <div class="fin-full-row">
+                    <div class="fin-k">
+                      Химия и расходники
+                      <small>средства, мешки, микрофибра</small>
+                    </div>
+                    <div class="fin-formula">Σ норма × цена</div>
+                    <div class="fin-v">680 000</div>
+                  </div>
+                  <div class="fin-full-row">
+                    <div class="fin-k">
+                      Накладные расходы
+                      <small>ставка 10% от прямых</small>
+                    </div>
+                    <div class="fin-formula">× 10%</div>
+                    <div class="fin-v">782 085</div>
+                  </div>
+                  <div class="fin-full-row total">
+                    <div class="fin-k">Итого затраты</div>
+                    <div class="fin-formula">Σ</div>
+                    <div class="fin-v">8 602 935</div>
+                  </div>
+
+                  <div class="fin-full-head" style="margin-top:0;">
+                    <div class="fin-full-title">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 6-6"/></svg>
+                      Прибыль
+                    </div>
+                  </div>
+                  <div class="fin-full-row">
+                    <div class="fin-k">
+                      Рентабельность
+                      <small>выручка − затраты</small>
+                    </div>
+                    <div class="fin-formula">R − C</div>
+                    <div class="fin-v">2 767 065</div>
+                  </div>
+                  <div class="fin-full-row">
+                    <div class="fin-k">
+                      КПН
+                      <small>ставка 20%</small>
+                    </div>
+                    <div class="fin-formula">× 20%</div>
+                    <div class="fin-v">553 413</div>
+                  </div>
+                  <div class="fin-full-row total">
+                    <div class="fin-k">Чистая прибыль</div>
+                    <div class="fin-formula">P − КПН</div>
+                    <div class="fin-v" style="color:var(--primary-deep);">2 213 652 ₸</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div><!-- /step 5 mall -->
+
+          <!-- === STEP 6: Согласование === -->
+          <div data-step-content="6">
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3>Согласование сметы</h3>
+                  <div class="hint" style="margin-top:4px;">Смета готова к отправке. Маржа 19,5% выше минимального порога — автосогласование возможно по правилу ≥ 20%, но требуется одобрение руководителя.</div>
+                </div>
+                <span class="status-chip">
+                  <span style="width:6px;height:6px;border-radius:50%;background:var(--primary-deep);"></span>
+                  Готова к согласованию
+                </span>
+              </div>
+
+              <!-- Timeline -->
+              <div class="approval-timeline">
+                <div class="approval-stage done">
+                  <div class="stage-dot">✓</div>
+                  <div class="stage-title">Черновик создан</div>
+                  <div class="stage-meta">Айгуль Ж. · 20.04.2026, 11:14</div>
+                </div>
+                <div class="approval-stage done">
+                  <div class="stage-dot">✓</div>
+                  <div class="stage-title">Внутренняя проверка</div>
+                  <div class="stage-meta">snapshot зафиксирован<br>все разделы пройдены</div>
+                </div>
+                <div class="approval-stage active">
+                  <div class="stage-dot">3</div>
+                  <div class="stage-title">Согласование руководителя</div>
+                  <div class="stage-meta">ожидается Нурлан Т.<br>финдиректор</div>
+                </div>
+                <div class="approval-stage">
+                  <div class="stage-dot">4</div>
+                  <div class="stage-title">Отправка клиенту</div>
+                  <div class="stage-meta">Excel + PDF<br>на email клиента</div>
+                </div>
+                <div class="approval-stage">
+                  <div class="stage-dot">5</div>
+                  <div class="stage-title">Подписание</div>
+                  <div class="stage-meta">после одобрения<br>клиентом</div>
+                </div>
+              </div>
+
+              <!-- Pre-flight checks -->
+              <div class="approval-checks">
+                <div class="app-check">
+                  <div class="check-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+                  </div>
+                  <div>
+                    <strong>Маржа в норме</strong>
+                    <span>19,5% — выше минимального порога 15%</span>
+                  </div>
+                </div>
+                <div class="app-check">
+                  <div class="check-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+                  </div>
+                  <div>
+                    <strong>Snapshot зафиксирован</strong>
+                    <span>Ставки ЗП и цены закреплены на 23.04.2026</span>
+                  </div>
+                </div>
+                <div class="app-check warn">
+                  <div class="check-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.8L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.8a2 2 0 00-3.4 0z"/></svg>
+                  </div>
+                  <div>
+                    <strong>1 ставка по максимуму</strong>
+                    <span>Дворник: 220 000 ₸ — требует комментария</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Comment -->
+              <div class="approval-comment">
+                <div class="comment-label">Комментарий к отправке (опционально)</div>
+                <textarea class="comment-input" placeholder="Например: «Ставка дворника выше медианы из-за сезонного дефицита кадров в районе ТРЦ. Согласовано с ОК»"></textarea>
+              </div>
+
+              <!-- Actions -->
+              <div class="approval-actions">
+                <div class="app-action-card danger">
+                  <div class="ac-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.8L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.8a2 2 0 00-3.4 0z"/></svg>
+                  </div>
+                  <div class="ac-title">Вернуть на доработку</div>
+                  <div class="ac-meta">Указать замечания автору</div>
+                </div>
+                <div class="app-action-card">
+                  <div class="ac-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l9 6 9-6M3 8v10a2 2 0 002 2h14a2 2 0 002-2V8"/><path d="M3 8l9-5 9 5"/></svg>
+                  </div>
+                  <div class="ac-title">Согласовать без отправки</div>
+                  <div class="ac-meta">Заморозить смету в статусе «Согласована»</div>
+                </div>
+                <div class="app-action-card primary">
+                  <div class="ac-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 13l4 4L19 7"/></svg>
+                  </div>
+                  <div class="ac-title">Согласовать и отправить клиенту</div>
+                  <div class="ac-meta">Excel + PDF на email клиента A</div>
+                </div>
+              </div>
+            </div>
+          </div><!-- /step 6 mall -->
+
+          </div><!-- /scenario mall -->
+
+          <!-- ═════════ SCENARIO: PARK ═════════ -->
+          <div data-scenario-view="park">
+
+            <!-- === STEP 1 PARK: Клиент и объект === -->
+            <div data-step-content="1">
+            <div class="card" style="margin-bottom:20px;">
+              <div class="client-strip">
+                <div class="client-cell">
+                  <div class="k">Клиент</div>
+                  <div class="v">Клиент B (B2B)</div>
+                  <div style="font-size:11px; color:var(--ink-mute); margin-top:2px;">БИН ••• ••• ••• •••</div>
+                </div>
+                <div class="client-cell">
+                  <div class="k">Объект</div>
+                  <div class="v">Парк № 7</div>
+                  <div style="font-size:11px; color:var(--ink-mute); margin-top:2px;">Алматы, городской парк</div>
+                </div>
+                <div class="client-cell">
+                  <div class="k">Общая площадь</div>
+                  <div class="v">8 750 <small>м²</small></div>
+                  <div style="font-size:11px; color:var(--ink-mute); margin-top:2px;">зелёная зона + прилегающая</div>
+                </div>
+                <div class="client-cell">
+                  <div class="k">Налоговый контур</div>
+                  <div class="v">43,5% <small>ЗП</small> · 16% <small>НДС</small></div>
+                  <div style="font-size:11px; color:var(--ink-mute); margin-top:2px;">парковое обслуживание</div>
+                </div>
+              </div>
+            </div>
+            </div><!-- /step 1 park -->
+
+            <!-- === STEP 2 PARK: Разделы услуг === -->
+            <div data-step-content="2">
+            <div class="card" style="margin-bottom:20px;">
+              <div class="card-head">
+                <div>
+                  <h3>Разделы услуг и площади</h3>
+                  <div class="hint" style="margin-top:4px;">Сезонный контракт апр–ноя. Включите применимые разделы; территория зима не применяется для данного объекта.</div>
+                </div>
+                <button class="btn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                  Добавить раздел
+                </button>
+              </div>
+              <!-- Sections (PARK) -->
+              <div>
+                <div class="section-row enabled">
+                  <div class="sec-left">
+                    <div class="sec-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6M4.2 10.2l4.3 4.3M2 18h6M19.8 10.2l-4.3 4.3M22 18h-6M12 12l-2 10M12 12l2 10"/></svg></div>
+                    <div>
+                      <div class="sec-title">Озеленение и уход за парком</div>
+                      <div class="sec-meta">Апр–ноя · сезонный · 43,5% ЗП · газонокосилки, триммеры</div>
+                    </div>
+                  </div>
+                  <div class="sec-input">
+                    <input class="input" value="8 750" readonly>
+                    <span class="unit">м²</span>
+                    <div class="toggle on" style="margin-left:8px;"></div>
+                  </div>
+                </div>
+
+                <div class="section-row enabled">
+                  <div class="sec-left">
+                    <div class="sec-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h3l2-6 4 12 2-6h7"/></svg></div>
+                    <div>
+                      <div class="sec-title">Территория — лето</div>
+                      <div class="sec-meta">Уборка прилегающей · тарифы по Алматы</div>
+                    </div>
+                  </div>
+                  <div class="sec-input">
+                    <input class="input" value="2 400" readonly>
+                    <span class="unit">м²</span>
+                    <div class="toggle on" style="margin-left:8px;"></div>
+                  </div>
+                </div>
+
+                <div class="section-row">
+                  <div class="sec-left">
+                    <div class="sec-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h2M20 12h2M12 2v2M12 20v2M6 6l1.5 1.5M16.5 16.5L18 18M6 18l1.5-1.5M16.5 7.5L18 6M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg></div>
+                    <div>
+                      <div class="sec-title">Территория — зима</div>
+                      <div class="sec-meta">Не применяется — сезонный контракт апр–ноя</div>
+                    </div>
+                  </div>
+                  <div class="sec-input">
+                    <span style="font-size:12px; color:var(--ink-mute); font-style:italic;">вне сезона</span>
+                    <div class="toggle" style="margin-left:8px;"></div>
+                  </div>
+                </div>
+
+                <div class="section-row enabled">
+                  <div class="sec-left">
+                    <div class="sec-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M5 21a7 7 0 0114 0"/></svg></div>
+                    <div>
+                      <div class="sec-title">Дополнительный персонал</div>
+                      <div class="sec-meta">Сантехник · электрик · бригадир</div>
+                    </div>
+                  </div>
+                  <div class="sec-input">
+                    <input class="input" value="3" readonly>
+                    <span class="unit">чел</span>
+                    <div class="toggle on" style="margin-left:8px;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            </div><!-- /step 2 park -->
+
+            <!-- Staff table (PARK) -->
+            <div data-step-content="3">
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3>Штатное расписание и ЗП</h3>
+                  <div class="hint" style="margin-top:4px;">Регион <strong style="color:var(--ink);">Алматы</strong> · обновлено из внешних источников 20.04.2026 · источник по умолчанию: медиана</div>
+                </div>
+                <button class="btn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-3-6.7L21 8M21 3v5h-5"/></svg>
+                  Обновить ставки
+                </button>
+              </div>
+
+              <div class="approval-note">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                <div>
+                  <strong>Snapshot нормативов будет зафиксирован при сохранении.</strong> Все выбранные ставки ЗП, источники и даты закрепляются за этой сметой — пересчёт по новым справочникам не повлияет на уже подписанные версии.
+                </div>
+              </div>
+
+              <div class="staff-head">
+                <div>Должность</div>
+                <div style="text-align:center">Числ.</div>
+                <div>Диапазон ЗП по региону (₸/мес, на руки)</div>
+                <div style="text-align:right">Выбрано</div>
+                <div style="text-align:right">Итого ФОТ</div>
+              </div>
+
+              <!-- Row 1 — Садовник (PARK) -->
+              <div class="staff-row">
+                <div>
+                  <div class="pos-name">Садовник</div>
+                  <div class="pos-meta">Озеленение · тариф налога 43,5%</div>
+                  <div class="pos-area">
+                    <span class="auto-tag">АВТО</span>
+                    8 750 м² ÷ 2 500 = 4 чел
+                  </div>
+                </div>
+                <div style="text-align:center">
+                  <div class="headcount-stepper">
+                    <button class="hc-btn">−</button>
+                    <div class="hc-val">4</div>
+                    <button class="hc-btn">+</button>
+                  </div>
+                </div>
+                <div class="salary-widget">
+                  <div class="salary-track">
+                    <div class="salary-btn">
+                      <span class="salary-label">Мин</span>
+                      <span class="salary-val">185 000</span>
+                    </div>
+                    <div class="salary-btn selected">
+                      <span class="salary-label">Медиана</span>
+                      <span class="salary-val">245 000</span>
+                    </div>
+                    <div class="salary-btn">
+                      <span class="salary-label">Макс</span>
+                      <span class="salary-val">320 000</span>
+                    </div>
+                  </div>
+                  <div class="salary-source">
+                    <span class="source-pill hh">внешн.</span>
+                    обновлено 3 дня назад · 47 вакансий
+                  </div>
+                </div>
+                <div class="fot-cell">
+                  245 000
+                  <small>× 4 = 980 000</small>
+                </div>
+                <div class="fot-cell">
+                  1 406 300 ₸
+                  <small>+ налоги 43,5%</small>
+                </div>
+              </div>
+
+              <!-- Row 2 — Дворник (PARK) -->
+              <div class="staff-row">
+                <div>
+                  <div class="pos-name">Дворник</div>
+                  <div class="pos-meta">Территория лето · 39,5%</div>
+                  <div class="pos-area">
+                    <span class="auto-tag">АВТО</span>
+                    2 400 м² ÷ 1 200 = 2 чел
+                  </div>
+                </div>
+                <div style="text-align:center">
+                  <div class="headcount-stepper">
+                    <button class="hc-btn">−</button>
+                    <div class="hc-val">2</div>
+                    <button class="hc-btn">+</button>
+                  </div>
+                </div>
+                <div class="salary-widget">
+                  <div class="salary-track">
+                    <div class="salary-btn">
+                      <span class="salary-label">Мин</span>
+                      <span class="salary-val">135 000</span>
+                    </div>
+                    <div class="salary-btn">
+                      <span class="salary-label">Медиана</span>
+                      <span class="salary-val">175 000</span>
+                    </div>
+                    <div class="salary-btn selected">
+                      <span class="salary-label">Макс</span>
+                      <span class="salary-val">220 000</span>
+                    </div>
+                  </div>
+                  <div class="salary-source">
+                    <span class="source-pill hh">внешн.</span>
+                    32 вакансии
+                    <span style="color:var(--amber); margin-left:auto; font-weight:600;">⚑ выбран макс</span>
+                  </div>
+                </div>
+                <div class="fot-cell">
+                  220 000
+                  <small>× 2 = 440 000</small>
+                </div>
+                <div class="fot-cell">
+                  614 300 ₸
+                  <small>+ налоги 39,5%</small>
+                </div>
+              </div>
+
+              <!-- Row 3 — Бригадир (PARK) -->
+              <div class="staff-row">
+                <div>
+                  <div class="pos-name">Бригадир</div>
+                  <div class="pos-meta">Линейный руководитель · 39,5%</div>
+                  <div class="pos-area" style="color:var(--ink-mute);">
+                    Фикс · 1 чел на объект
+                  </div>
+                </div>
+                <div style="text-align:center">
+                  <div class="headcount-stepper">
+                    <button class="hc-btn">−</button>
+                    <div class="hc-val">1</div>
+                    <button class="hc-btn">+</button>
+                  </div>
+                </div>
+                <div class="salary-widget">
+                  <div class="salary-track">
+                    <div class="salary-btn">
+                      <span class="salary-label">Мин</span>
+                      <span class="salary-val">280 000</span>
+                    </div>
+                    <div class="salary-btn selected">
+                      <span class="salary-label">Медиана</span>
+                      <span class="salary-val">350 000</span>
+                    </div>
+                    <div class="salary-btn">
+                      <span class="salary-label">Макс</span>
+                      <span class="salary-val">450 000</span>
+                    </div>
+                  </div>
+                  <div class="salary-source">
+                    <span class="source-pill manual">manual</span>
+                    внутренний прайс · 15.01.2026
+                  </div>
+                </div>
+                <div class="fot-cell">
+                  350 000
+                  <small>× 1 = 350 000</small>
+                </div>
+                <div class="fot-cell">
+                  488 250 ₸
+                  <small>+ налоги 39,5%</small>
+                </div>
+              </div>
+
+              <!-- Row 4 — Сантехник low sample (PARK) -->
+              <div class="staff-row">
+                <div>
+                  <div class="pos-name">Сантехник</div>
+                  <div class="pos-meta">Доп. персонал · 39,5%</div>
+                  <div class="pos-area" style="color:var(--ink-mute);">
+                    По запросу · 1 чел
+                  </div>
+                </div>
+                <div style="text-align:center">
+                  <div class="headcount-stepper">
+                    <button class="hc-btn">−</button>
+                    <div class="hc-val">1</div>
+                    <button class="hc-btn">+</button>
+                  </div>
+                </div>
+                <div class="salary-widget">
+                  <div class="salary-track">
+                    <div class="salary-btn">
+                      <span class="salary-label">Мин</span>
+                      <span class="salary-val">220 000</span>
+                    </div>
+                    <div class="salary-btn selected">
+                      <span class="salary-label">Медиана</span>
+                      <span class="salary-val">285 000</span>
+                    </div>
+                    <div class="salary-btn">
+                      <span class="salary-label">Макс</span>
+                      <span class="salary-val">360 000</span>
+                    </div>
+                  </div>
+                  <div class="salary-source">
+                    <span class="source-pill low-sample">внешн. · 6 вак.</span>
+                    недостаточная выборка (&lt; 10)
+                  </div>
+                  <div class="warn-note">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l10 18H2L12 2z"/><path d="M12 9v5M12 17h.01"/></svg>
+                    Рекомендуем сверить с manual-прайсом или 1С
+                  </div>
+                </div>
+                <div class="fot-cell">
+                  285 000
+                  <small>× 1 = 285 000</small>
+                </div>
+                <div class="fot-cell">
+                  397 400 ₸
+                  <small>+ налоги 39,5%</small>
+                </div>
+              </div>
+
+              <!-- Row 5 — Электрик (PARK) -->
+              <div class="staff-row">
+                <div>
+                  <div class="pos-name">Электрик</div>
+                  <div class="pos-meta">Доп. персонал · 39,5%</div>
+                  <div class="pos-area" style="color:var(--ink-mute);">
+                    По запросу · 1 чел
+                  </div>
+                </div>
+                <div style="text-align:center">
+                  <div class="headcount-stepper">
+                    <button class="hc-btn">−</button>
+                    <div class="hc-val">1</div>
+                    <button class="hc-btn">+</button>
+                  </div>
+                </div>
+                <div class="salary-widget">
+                  <div class="salary-track">
+                    <div class="salary-btn">
+                      <span class="salary-label">Мин</span>
+                      <span class="salary-val">240 000</span>
+                    </div>
+                    <div class="salary-btn selected">
+                      <span class="salary-label">Медиана</span>
+                      <span class="salary-val">310 000</span>
+                    </div>
+                    <div class="salary-btn">
+                      <span class="salary-label">Макс</span>
+                      <span class="salary-val">395 000</span>
+                    </div>
+                  </div>
+                  <div class="salary-source">
+                    <span class="source-pill hh">внешн.</span>
+                    28 вакансий · 20.04
+                  </div>
+                </div>
+                <div class="fot-cell">
+                  310 000
+                  <small>× 1 = 310 000</small>
+                </div>
+                <div class="fot-cell">
+                  432 450 ₸
+                  <small>+ налоги 39,5%</small>
+                </div>
+              </div>
+            </div>
+            </div><!-- /step 3 (park) -->
+
+            <!-- ═════ INVENTORY & CHEMICALS (PARK) ═════ -->
+            <div data-step-content="4">
+            <div class="card" style="margin-top:0;">
+              <div class="card-head">
+                <div>
+                  <h3>Инвентарь и химия</h3>
+                  <div class="hint" style="margin-top:4px;">Регион <strong style="color:var(--ink);">Алматы</strong> · сезонный контракт · всего позиций: 11</div>
+                </div>
+                <button class="btn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                  Добавить позицию
+                </button>
+              </div>
+
+              <div class="inv-grid">
+                <!-- === EQUIPMENT (PARK) === -->
+                <div class="inv-col">
+                  <div class="inv-col-head">
+                    <div class="inv-col-title">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                      Инвентарь и техника
+                    </div>
+                    <div class="inv-col-sum">122 400 ₸/мес</div>
+                  </div>
+
+                  <div class="inv-row">
+                    <div class="inv-name">
+                      Газонокосилка самоходная
+                      <small>Husqvarna LC 347V · 36 мес · сезон × 12/8</small>
+                    </div>
+                    <div class="inv-qty">2</div>
+                    <div class="inv-price">420 000</div>
+                    <div class="inv-cost">
+                      35 000
+                      <small>(2×420к ÷ 36) × 1,5</small>
+                    </div>
+                  </div>
+
+                  <div class="inv-row">
+                    <div class="inv-name">
+                      Триммер бензиновый
+                      <small>Stihl FS 55 · амортизация 24 мес</small>
+                    </div>
+                    <div class="inv-qty">3</div>
+                    <div class="inv-price">86 000</div>
+                    <div class="inv-cost">
+                      16 125
+                      <small>(3×86к ÷ 24) × 1,5</small>
+                    </div>
+                  </div>
+
+                  <div class="inv-row">
+                    <div class="inv-name">
+                      Воздуходувка для листьев
+                      <small>ранцевая · 24 мес · осень × 12/3</small>
+                    </div>
+                    <div class="inv-qty">2</div>
+                    <div class="inv-price">52 000</div>
+                    <div class="inv-cost">
+                      17 333
+                      <small>сезонная</small>
+                    </div>
+                  </div>
+
+                  <div class="inv-row">
+                    <div class="inv-name">
+                      Тачка садовая, мешки
+                      <small>перенос земли, листвы · 18 мес</small>
+                    </div>
+                    <div class="inv-qty">6</div>
+                    <div class="inv-price">18 500</div>
+                    <div class="inv-cost">
+                      9 250
+                      <small>(6×18,5к ÷ 18) × 1,5</small>
+                    </div>
+                  </div>
+
+                  <div class="inv-row">
+                    <div class="inv-name">
+                      Садовый инвентарь (лопаты, грабли)
+                      <small>комплект · 12 мес</small>
+                    </div>
+                    <div class="inv-qty">4</div>
+                    <div class="inv-price">14 000</div>
+                    <div class="inv-cost">
+                      7 000
+                      <small>(4×14к ÷ 12) × 1,5</small>
+                    </div>
+                  </div>
+
+                  <div class="inv-row">
+                    <div class="inv-name">
+                      Униформа садовников, СИЗ
+                      <small>2 комплекта/чел · сезонная</small>
+                    </div>
+                    <div class="inv-qty">10</div>
+                    <div class="inv-price">22 000</div>
+                    <div class="inv-cost">
+                      27 500
+                      <small>сезон × 12/8</small>
+                    </div>
+                  </div>
+
+                  <div class="inv-row">
+                    <div class="inv-name">
+                      Автовышка (аренда по запросу)
+                      <small>обрезка деревьев · разово</small>
+                    </div>
+                    <div class="inv-qty">—</div>
+                    <div class="inv-price">35 000</div>
+                    <div class="inv-cost">
+                      10 192
+                      <small>~3,5 дня/мес</small>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- === CONSUMABLES (PARK) === -->
+                <div class="inv-col">
+                  <div class="inv-col-head">
+                    <div class="inv-col-title">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6v4l3 3v11H6V10l3-3V3z"/><path d="M9 11h6M9 15h6"/></svg>
+                      Расходники и материалы
+                    </div>
+                    <div class="inv-col-sum">290 400 ₸/мес</div>
+                  </div>
+
+                  <div class="inv-row">
+                    <div class="inv-name">
+                      Удобрения для газонов
+                      <small>комплексное NPK · весна-лето</small>
+                    </div>
+                    <div class="inv-qty">85 кг</div>
+                    <div class="inv-price">1 800</div>
+                    <div class="inv-cost">
+                      153 000
+                      <small>85 × 1,8к</small>
+                    </div>
+                  </div>
+
+                  <div class="inv-row">
+                    <div class="inv-name">
+                      Семена газонной травы
+                      <small>подсев · норма 40 г/м²</small>
+                    </div>
+                    <div class="inv-qty">20 кг</div>
+                    <div class="inv-price">4 200</div>
+                    <div class="inv-cost">
+                      84 000
+                      <small>20 × 4,2к</small>
+                    </div>
+                  </div>
+
+                  <div class="inv-row">
+                    <div class="inv-name">
+                      Средства от сорняков и вредителей
+                      <small>гербициды · по регламенту</small>
+                    </div>
+                    <div class="inv-qty">12 л</div>
+                    <div class="inv-price">3 600</div>
+                    <div class="inv-cost">
+                      43 200
+                      <small>12 × 3,6к</small>
+                    </div>
+                  </div>
+
+                  <div class="inv-row">
+                    <div class="inv-name">
+                      Грунт, мульча, песок
+                      <small>рассыпной · по потребности</small>
+                    </div>
+                    <div class="inv-qty">—</div>
+                    <div class="inv-price">—</div>
+                    <div class="inv-cost">
+                      68 000
+                      <small>общий бюджет</small>
+                    </div>
+                  </div>
+
+                  <div class="inv-row">
+                    <div class="inv-name">
+                      ГСМ для техники
+                      <small>АИ-92 + масло 2Т</small>
+                    </div>
+                    <div class="inv-qty">180 л</div>
+                    <div class="inv-price">240</div>
+                    <div class="inv-cost">
+                      43 200
+                      <small>180 × 240</small>
+                    </div>
+                  </div>
+
+                  <div class="inv-row">
+                    <div class="inv-name">
+                      Мешки для листвы и мусора
+                      <small>240 л · усиленные</small>
+                    </div>
+                    <div class="inv-qty">420</div>
+                    <div class="inv-price">85</div>
+                    <div class="inv-cost">
+                      35 700
+                      <small>420 × 85</small>
+                    </div>
+                  </div>
+
+                  <div class="inv-row">
+                    <div class="inv-name">
+                      Лески, ножи, фильтры (для техники)
+                      <small>расходники к газонокосилкам/триммерам</small>
+                    </div>
+                    <div class="inv-qty">—</div>
+                    <div class="inv-price">—</div>
+                    <div class="inv-cost">
+                      28 500
+                      <small>общий бюджет</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="inv-summary">
+                <div class="inv-sum-cell">
+                  <div class="k">Амортизация инвентаря</div>
+                  <div class="v">122 400<small>₸/мес</small></div>
+                </div>
+                <div class="inv-sum-cell">
+                  <div class="k">Расходники и материалы</div>
+                  <div class="v">290 400<small>₸/мес</small></div>
+                </div>
+                <div class="inv-sum-cell">
+                  <div class="k">Итого</div>
+                  <div class="v">412 800<small>₸/мес · 6,2% от выручки</small></div>
+                </div>
+              </div>
+            </div>
+            </div><!-- /step 4 (park) -->
+
+            <!-- === STEP 5 PARK: Финмодель === -->
+            <div data-step-content="5">
+              <div class="fin-hero">
+                <div class="fin-hero-cell">
+                  <div class="hk">Выручка без НДС</div>
+                  <div class="hv">6,64 <small>млн ₸</small></div>
+                  <div class="hd">в месяц · 8 мес × 6,64 = 53,1 млн</div>
+                </div>
+                <div class="fin-hero-cell">
+                  <div class="hk">Себестоимость</div>
+                  <div class="hv">4,64 <small>млн ₸</small></div>
+                  <div class="hd">69,9% от выручки</div>
+                </div>
+                <div class="fin-hero-cell">
+                  <div class="hk">Чистая прибыль</div>
+                  <div class="hv">1,60 <small>млн ₸</small></div>
+                  <div class="hd">после КПН 20%</div>
+                </div>
+                <div class="fin-hero-cell accent">
+                  <div class="hk">Маржа</div>
+                  <div class="hv">24,1<small>%</small></div>
+                  <div class="hd">существенно выше порога</div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-head">
+                  <div>
+                    <h3>Детализация финансовой модели</h3>
+                    <div class="hint" style="margin-top:4px;">Сезонный контракт: апр–ноя (8 мес). Амортизация техники пересчитана с коэффициентом 12/8.</div>
+                  </div>
+                  <div style="display:flex; gap:8px;">
+                    <button class="btn">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-4M12 12V4M4 12h4M16 12h4"/></svg>
+                      Формулы
+                    </button>
+                    <button class="btn">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m-4-4l4 4 4-4M3 21h18"/></svg>
+                      Excel
+                    </button>
+                  </div>
+                </div>
+
+                <div class="fin-full">
+                  <div class="fin-full-col">
+                    <div class="fin-full-head">
+                      <div class="fin-full-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6M4.2 10.2l4.3 4.3M2 18h6M19.8 10.2l-4.3 4.3M22 18h-6M12 12l-2 10M12 12l2 10"/></svg>
+                        Выручка по разделам
+                      </div>
+                      <div class="fin-full-sum">6 635 000 ₸</div>
+                    </div>
+                    <div class="fin-full-row">
+                      <div class="fin-k">Озеленение<small>8 750 м² × 500 ₸/м²</small></div>
+                      <div class="fin-formula">8 750 × 500</div>
+                      <div class="fin-v">4 375 000</div>
+                    </div>
+                    <div class="fin-full-row">
+                      <div class="fin-k">Территория лето<small>2 400 м² × 600 ₸/м²</small></div>
+                      <div class="fin-formula">2 400 × 600</div>
+                      <div class="fin-v">1 440 000</div>
+                    </div>
+                    <div class="fin-full-row">
+                      <div class="fin-k">Доп. персонал<small>3 чел · фикс</small></div>
+                      <div class="fin-formula">фикс</div>
+                      <div class="fin-v">820 000</div>
+                    </div>
+                    <div class="fin-full-row total">
+                      <div class="fin-k">Итого выручка без НДС</div>
+                      <div class="fin-formula">Σ</div>
+                      <div class="fin-v">6 635 000</div>
+                    </div>
+
+                    <div class="fin-full-head" style="margin-top:0;">
+                      <div class="fin-full-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg>
+                        НДС и итого с НДС
+                      </div>
+                    </div>
+                    <div class="fin-full-row">
+                      <div class="fin-k">НДС<small>ставка 16%</small></div>
+                      <div class="fin-formula">× 16%</div>
+                      <div class="fin-v">1 061 600</div>
+                    </div>
+                    <div class="fin-full-row total">
+                      <div class="fin-k">Выручка с НДС</div>
+                      <div class="fin-formula">× 1,16</div>
+                      <div class="fin-v">7 696 600</div>
+                    </div>
+                  </div>
+
+                  <div class="fin-full-col">
+                    <div class="fin-full-head">
+                      <div class="fin-full-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14h18V6l-3-4M3 6h18"/></svg>
+                        Себестоимость
+                      </div>
+                      <div class="fin-full-sum">4 637 710 ₸</div>
+                    </div>
+                    <div class="fin-full-row">
+                      <div class="fin-k">ФОТ (на руки)<small>5 должностей, 9 чел</small></div>
+                      <div class="fin-formula">Σ ЗП × числ.</div>
+                      <div class="fin-v">2 365 000</div>
+                    </div>
+                    <div class="fin-full-row">
+                      <div class="fin-k">Налоги ЗП<small>43,5% (озеленение) + 39,5%</small></div>
+                      <div class="fin-formula">× ставка</div>
+                      <div class="fin-v">973 700</div>
+                    </div>
+                    <div class="fin-full-row">
+                      <div class="fin-k">Отпускной резерв<small>(ФОТ + налоги) ÷ 12</small></div>
+                      <div class="fin-formula">(F+N) ÷ 12</div>
+                      <div class="fin-v">278 200</div>
+                    </div>
+                    <div class="fin-full-row">
+                      <div class="fin-k">Амортизация (сезонная)<small>коэф. 12/8 для парковой техники</small></div>
+                      <div class="fin-formula">с сезонностью</div>
+                      <div class="fin-v">122 400</div>
+                    </div>
+                    <div class="fin-full-row">
+                      <div class="fin-k">Расходники и материалы<small>удобрения, семена, ГСМ, гербициды</small></div>
+                      <div class="fin-formula">Σ</div>
+                      <div class="fin-v">290 400</div>
+                    </div>
+                    <div class="fin-full-row">
+                      <div class="fin-k">Накладные<small>ставка 10%</small></div>
+                      <div class="fin-formula">× 10%</div>
+                      <div class="fin-v">421 610</div>
+                    </div>
+                    <div class="fin-full-row total">
+                      <div class="fin-k">Итого затраты</div>
+                      <div class="fin-formula">Σ</div>
+                      <div class="fin-v">4 637 710</div>
+                    </div>
+
+                    <div class="fin-full-head" style="margin-top:0;">
+                      <div class="fin-full-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 6-6"/></svg>
+                        Прибыль
+                      </div>
+                    </div>
+                    <div class="fin-full-row">
+                      <div class="fin-k">Рентабельность<small>выручка − затраты</small></div>
+                      <div class="fin-formula">R − C</div>
+                      <div class="fin-v">1 997 290</div>
+                    </div>
+                    <div class="fin-full-row">
+                      <div class="fin-k">КПН<small>ставка 20%</small></div>
+                      <div class="fin-formula">× 20%</div>
+                      <div class="fin-v">399 458</div>
+                    </div>
+                    <div class="fin-full-row total">
+                      <div class="fin-k">Чистая прибыль</div>
+                      <div class="fin-formula">P − КПН</div>
+                      <div class="fin-v" style="color:var(--primary-deep);">1 597 832 ₸</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div><!-- /step 5 park -->
+
+            <!-- === STEP 6 PARK: Согласование === -->
+            <div data-step-content="6">
+              <div class="card">
+                <div class="card-head">
+                  <div>
+                    <h3>Согласование сметы</h3>
+                    <div class="hint" style="margin-top:4px;">Смета готова к отправке. Маржа 24,1% — автосогласование возможно, смета имеет запас прочности выше порога.</div>
+                  </div>
+                  <span class="status-chip">
+                    <span style="width:6px;height:6px;border-radius:50%;background:var(--primary-deep);"></span>
+                    Готова к согласованию
+                  </span>
+                </div>
+
+                <div class="approval-timeline">
+                  <div class="approval-stage done">
+                    <div class="stage-dot">✓</div>
+                    <div class="stage-title">Черновик создан</div>
+                    <div class="stage-meta">Айгуль Ж. · 18.03.2026, 10:42</div>
+                  </div>
+                  <div class="approval-stage done">
+                    <div class="stage-dot">✓</div>
+                    <div class="stage-title">Внутренняя проверка</div>
+                    <div class="stage-meta">snapshot зафиксирован<br>сезонность учтена</div>
+                  </div>
+                  <div class="approval-stage active">
+                    <div class="stage-dot">3</div>
+                    <div class="stage-title">Согласование руководителя</div>
+                    <div class="stage-meta">ожидается Нурлан Т.<br>финдиректор</div>
+                  </div>
+                  <div class="approval-stage">
+                    <div class="stage-dot">4</div>
+                    <div class="stage-title">Отправка клиенту</div>
+                    <div class="stage-meta">Excel + PDF<br>на email клиента</div>
+                  </div>
+                  <div class="approval-stage">
+                    <div class="stage-dot">5</div>
+                    <div class="stage-title">Подписание</div>
+                    <div class="stage-meta">после одобрения<br>клиентом</div>
+                  </div>
+                </div>
+
+                <div class="approval-checks">
+                  <div class="app-check">
+                    <div class="check-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <div>
+                      <strong>Маржа с запасом</strong>
+                      <span>24,1% — на 9,1 п.п. выше порога 15%</span>
+                    </div>
+                  </div>
+                  <div class="app-check">
+                    <div class="check-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <div>
+                      <strong>Сезонность учтена</strong>
+                      <span>Амортизация пересчитана × 12/8 для парковой техники</span>
+                    </div>
+                  </div>
+                  <div class="app-check warn">
+                    <div class="check-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.8L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.8a2 2 0 00-3.4 0z"/></svg>
+                    </div>
+                    <div>
+                      <strong>Сантехник: малая выборка</strong>
+                      <span>Внешние источники показали 6 вакансий (&lt; 10) — проверьте вручную</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="approval-comment">
+                  <div class="comment-label">Комментарий к отправке (опционально)</div>
+                  <textarea class="comment-input" placeholder="Например: «Сезонный контракт апр–ноя. Ставка сантехника взята из manual-прайса из-за малой выборки внешних источников»"></textarea>
+                </div>
+
+                <div class="approval-actions">
+                  <div class="app-action-card danger">
+                    <div class="ac-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.8L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.8a2 2 0 00-3.4 0z"/></svg>
+                    </div>
+                    <div class="ac-title">Вернуть на доработку</div>
+                    <div class="ac-meta">Указать замечания автору</div>
+                  </div>
+                  <div class="app-action-card">
+                    <div class="ac-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l9 6 9-6M3 8v10a2 2 0 002 2h14a2 2 0 002-2V8"/><path d="M3 8l9-5 9 5"/></svg>
+                    </div>
+                    <div class="ac-title">Согласовать без отправки</div>
+                    <div class="ac-meta">Заморозить смету в статусе «Согласована»</div>
+                  </div>
+                  <div class="app-action-card primary">
+                    <div class="ac-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <div class="ac-title">Согласовать и отправить клиенту</div>
+                    <div class="ac-meta">Excel + PDF на email клиента B</div>
+                  </div>
+                </div>
+              </div>
+            </div><!-- /step 6 park -->
+
+          </div><!-- /scenario park -->
+
+        </div><!-- /col-main -->
+
+        <!-- ═════ FIN MODEL PANEL ═════ -->
+        <aside>
+
+          <!-- FIN — MALL -->
+          <div data-scenario-view="mall" class="show">
+          <div class="finmodel">
+            <div class="fin-head">
+              <div class="label">Маржа в месяц</div>
+              <div class="fin-margin">
+                2 213<span style="opacity:.5">к ₸</span>
+                <span class="fin-margin-pct">· 19,5%</span>
+              </div>
+              <div class="fin-margin-note">Выше минимальной (15%) · автосогласование недоступно</div>
+            </div>
+
+            <div class="fin-section">Выручка</div>
+            <div class="fin-table">
+              <div class="fin-row"><span class="k">Клининг ТРЦ, 25 000 м²</span><span class="v">9 750 000</span></div>
+              <div class="fin-row"><span class="k">Территория, 4 500 м² (усред.)</span><span class="v">900 000</span></div>
+              <div class="fin-row"><span class="k">Доп. персонал (3 чел)</span><span class="v">720 000</span></div>
+              <div class="fin-row total"><span class="k">Выручка без НДС</span><span class="v">11 370 000</span></div>
+            </div>
+
+            <div class="fin-section">Себестоимость</div>
+            <div class="fin-table">
+              <div class="fin-row"><span class="k">ФОТ (на руки)</span><span class="v">4 520 000</span></div>
+              <div class="fin-row"><span class="k">Налоги на ЗП (39,5%)</span><span class="v">1 785 400</span></div>
+              <div class="fin-row"><span class="k">Отпускной резерв (÷ 12)</span><span class="v">525 450</span></div>
+              <div class="fin-row"><span class="k">Амортизация инвентаря</span><span class="v">310 000</span></div>
+              <div class="fin-row"><span class="k">Химия и расходники</span><span class="v">680 000</span></div>
+              <div class="fin-row"><span class="k">Накладные (10%)</span><span class="v">782 085</span></div>
+              <div class="fin-row total"><span class="k">Всего затраты</span><span class="v">8 602 935</span></div>
+            </div>
+
+            <div class="fin-section">Прибыль</div>
+            <div class="fin-table">
+              <div class="fin-row"><span class="k">Рентабельность</span><span class="v">2 767 065</span></div>
+              <div class="fin-row"><span class="k">КПН (20%)</span><span class="v">553 413</span></div>
+              <div class="fin-row total"><span class="k">Чистая прибыль</span><span class="v" style="color:#ffffff; border-bottom: 2px solid var(--accent); padding-bottom:2px;">2 213 652</span></div>
+            </div>
+
+            <div class="fin-actions">
+              <button class="btn btn-green-on-dark">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 13l4 4L19 7"/></svg>
+                На согласование
+              </button>
+              <button class="btn btn-outline-light">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m-4-4l4 4 4-4M3 21h18"/></svg>
+                Выгрузить Excel
+              </button>
+            </div>
+          </div>
+          </div><!-- /fin mall -->
+
+          <!-- FIN — PARK -->
+          <div data-scenario-view="park">
+          <div class="finmodel">
+            <div class="fin-head">
+              <div class="label">Маржа в месяц</div>
+              <div class="fin-margin">
+                1 597<span style="opacity:.5">к ₸</span>
+                <span class="fin-margin-pct">· 24,1%</span>
+              </div>
+              <div class="fin-margin-note">Выше минимальной (15%) · сезонный контракт апр–ноя</div>
+            </div>
+
+            <div class="fin-section">Выручка</div>
+            <div class="fin-table">
+              <div class="fin-row"><span class="k">Озеленение, 8 750 м²</span><span class="v">4 375 000</span></div>
+              <div class="fin-row"><span class="k">Территория лето, 2 400 м²</span><span class="v">1 440 000</span></div>
+              <div class="fin-row"><span class="k">Доп. персонал (3 чел)</span><span class="v">820 000</span></div>
+              <div class="fin-row total"><span class="k">Выручка без НДС</span><span class="v">6 635 000</span></div>
+            </div>
+
+            <div class="fin-section">Себестоимость</div>
+            <div class="fin-table">
+              <div class="fin-row"><span class="k">ФОТ (на руки)</span><span class="v">2 365 000</span></div>
+              <div class="fin-row"><span class="k">Налоги ЗП (43,5% / 39,5%)</span><span class="v">973 700</span></div>
+              <div class="fin-row"><span class="k">Отпускной резерв (÷ 12)</span><span class="v">278 200</span></div>
+              <div class="fin-row"><span class="k">Амортизация (сезонная)</span><span class="v">186 400</span></div>
+              <div class="fin-row"><span class="k">Химия и расходники</span><span class="v">412 800</span></div>
+              <div class="fin-row"><span class="k">Накладные (10%)</span><span class="v">421 610</span></div>
+              <div class="fin-row total"><span class="k">Всего затраты</span><span class="v">4 637 710</span></div>
+            </div>
+
+            <div class="fin-section">Прибыль</div>
+            <div class="fin-table">
+              <div class="fin-row"><span class="k">Рентабельность</span><span class="v">1 997 290</span></div>
+              <div class="fin-row"><span class="k">КПН (20%)</span><span class="v">399 458</span></div>
+              <div class="fin-row total"><span class="k">Чистая прибыль</span><span class="v" style="color:#ffffff; border-bottom: 2px solid var(--accent); padding-bottom:2px;">1 597 832</span></div>
+            </div>
+
+            <div class="fin-actions">
+              <button class="btn btn-green-on-dark">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 13l4 4L19 7"/></svg>
+                На согласование
+              </button>
+              <button class="btn btn-outline-light">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m-4-4l4 4 4-4M3 21h18"/></svg>
+                Выгрузить Excel
+              </button>
+            </div>
+          </div>
+          </div><!-- /fin park -->
+
+        </aside>
+
+      </div><!-- /grid -->
+    </div><!-- /content -->
+
+    </div><!-- /view detail -->
+  </main>
+</div>
+
+<script>
+  // ═══ Данные сцен (Парк / ТРЦ) ═══
+  const SCENARIOS = {
+    mall: {
+      estimateId: 'EST-2026-0412',
+      estimateType: 'Клининг ТРЦ',
+      clientName: 'клиента A',
+      titleType: 'клининг ТРЦ',
+      period: '01.05.2026 — 30.04.2027',
+      status: 'DRAFT v3',
+      regionName: 'Алматы',
+      stepClient: 'Клиент A · Объект № 12',
+      stepSections: '4 раздела, 29 500 м²',
+      stepStaff: '5 должностей',
+      stepInv: '14 позиций'
+    },
+    park: {
+      estimateId: 'EST-2026-0318',
+      estimateType: 'Парковое обслуживание',
+      clientName: 'клиента B',
+      titleType: 'парковое обслуживание',
+      period: '01.04.2026 — 30.11.2026',
+      status: 'DRAFT v2',
+      regionName: 'Алматы',
+      stepClient: 'Клиент B · Парк № 7',
+      stepSections: '3 раздела, 8 750 м²',
+      stepStaff: '5 должностей',
+      stepInv: '11 позиций'
+    }
+  };
+
+  function applyScenario(key) {
+    const data = SCENARIOS[key];
+    if (!data) return;
+
+    // обновить data-swap поля
+    Object.entries(data).forEach(([k, v]) => {
+      document.querySelectorAll(`[data-swap="${k}"]`).forEach(el => { el.textContent = v; });
+    });
+
+    // переключить видимость блоков сценариев
+    document.querySelectorAll('[data-scenario-view]').forEach(el => {
+      const show = el.dataset.scenarioView === key;
+      el.classList.toggle('show', show);
+      if (show) {
+        el.classList.remove('swap-fade');
+        void el.offsetWidth;
+        el.classList.add('swap-fade');
+      }
+    });
+  }
+
+  // ═══ Роутинг: список ↔ деталка ═══
+  function showView(view) {
+    document.querySelectorAll('[data-view]').forEach(el => {
+      const show = el.dataset.view === view;
+      el.classList.toggle('show', show);
+      if (show) {
+        el.classList.remove('swap-fade');
+        void el.offsetWidth;
+        el.classList.add('swap-fade');
+      }
+    });
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
+  // Клик по строке сметы → открываем соответствующий сценарий
+  document.querySelectorAll('.est-row[data-open]').forEach(row => {
+    row.addEventListener('click', () => {
+      const scenario = row.dataset.open;
+      applyScenario(scenario);
+      showView('detail');
+      activateStep('3');  // открываем сразу на "Штат и ЗП" — самый информативный шаг
+    });
+  });
+
+  // Клики по строкам без data-open — показываем алерт-заглушку
+  document.querySelectorAll('.est-row:not([data-open])').forEach(row => {
+    row.addEventListener('click', () => {
+      row.style.transition = 'background .25s';
+      row.style.background = 'var(--green-wash)';
+      setTimeout(() => { row.style.background = ''; }, 400);
+    });
+  });
+
+  // Назад к списку
+  document.querySelectorAll('[data-back="true"]').forEach(el => {
+    el.addEventListener('click', () => showView('list'));
+  });
+
+  // Клик по "Сметы" в сайдбаре → список
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      if (item.textContent.includes('Сметы') && !item.textContent.includes('согласовании')) {
+        document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+        item.classList.add('active');
+        showView('list');
+      }
+    });
+  });
+
+  // ═══ Маленькое демо-взаимодействие: переключение выбора ЗП ═══
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.salary-btn');
+    if (!btn) return;
+    const track = btn.closest('.salary-track');
+    track.querySelectorAll('.salary-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  });
+
+  // ═══ Toggle секций ═══
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest('.toggle');
+    if (!t) return;
+    t.classList.toggle('on');
+    const row = t.closest('.section-row');
+    if (row) row.classList.toggle('enabled', t.classList.contains('on'));
+  });
+
+  // ═══ Шаги ═══
+  // Определение целевого шага: используем позицию (1-based), а не текст внутри .step-num
+  // (т.к. у пройденных шагов там "✓", а не цифра).
+  document.querySelectorAll('.step').forEach((s, i, arr) => {
+    s.addEventListener('click', () => {
+      arr.forEach(x => x.classList.remove('active'));
+      s.classList.add('active');
+
+      const targetStep = String(i + 1);
+      document.querySelectorAll('[data-step-content]').forEach(el => {
+        el.classList.toggle('active', el.dataset.stepContent === targetStep);
+      });
+
+      // скрываем боковую финмодель на шаге 5 (там своя большая) и 6, показываем на остальных
+      const aside = document.querySelector('.main aside');
+      if (aside) aside.style.display = (targetStep === '5' || targetStep === '6') ? 'none' : '';
+      const grid = document.querySelector('.grid');
+      if (grid) grid.style.gridTemplateColumns = (targetStep === '5' || targetStep === '6') ? '1fr' : '';
+    });
+  });
+
+  // Активировать шаг по номеру (1-6)
+  function activateStep(num) {
+    const idx = parseInt(num, 10) - 1;
+    const steps = document.querySelectorAll('.step');
+    if (steps[idx]) steps[idx].click();
+  }
+
+  // ═══ Инициализация: показываем список по умолчанию, заряжаем ТРЦ как активную ═══
+  applyScenario('mall');
+  showView('list');
+</script>
+</body>
+</html>
